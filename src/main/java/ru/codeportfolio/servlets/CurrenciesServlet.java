@@ -60,7 +60,7 @@ public class CurrenciesServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
-        String code = req.getParameter("code");
+        String code = req.getParameter("name");
         String name  = req.getParameter("name");
         String sign = req.getParameter("sign");
 

@@ -1,10 +1,10 @@
 package ru.codeportfolio.services;
 
 import ru.codeportfolio.DTO.CurrencyDto;
-import ru.codeportfolio.db.CurrenciesDao;
-import ru.codeportfolio.db.CurrenciesDaoInterface;
+import ru.codeportfolio.db.PlayersDao;
+import ru.codeportfolio.db.PlayersDaoInterface;
 import ru.codeportfolio.exceptions.*;
-import ru.codeportfolio.models.Currency;
+import ru.codeportfolio.models.Player;
 import ru.codeportfolio.mapper.CurrencyMapper;
 
 import javax.sql.DataSource;
@@ -32,9 +32,9 @@ public class CurrencyService {
 
         try (Connection conn = dataSource.getConnection()) {
 
-            CurrenciesDaoInterface currenciesDaoInterface = new CurrenciesDao(conn);
+            PlayersDaoInterface playersDaoInterface = new PlayersDao(conn);
 
-            return CurrencyMapper.INSTANCE.toDtoList(currenciesDaoInterface.getAll());
+            return CurrencyMapper.INSTANCE.toDtoList(playersDaoInterface.getAll());
 
         } catch (SQLException e) {
             throw new DataAccessException("DB error", e);
@@ -44,11 +44,11 @@ public class CurrencyService {
     public CurrencyDto getCurrency(String code){
 
         code = normalizeCode(code);
-        Currency result;
+        Player result;
 
         try (Connection conn = dataSource.getConnection()) {
-            CurrenciesDaoInterface currenciesDaoInterface = new CurrenciesDao(conn);
-            result = currenciesDaoInterface.findByCode(code);
+            PlayersDaoInterface playersDaoInterface = new PlayersDao(conn);
+            result = playersDaoInterface.findByName(code);
 
             if (result == null) {
                 throw new NotFoundException("Currency is not found");
@@ -70,10 +70,10 @@ public class CurrencyService {
         int result;
 
         try (Connection conn = dataSource.getConnection()) {
-            CurrenciesDaoInterface currenciesDaoInterface = new CurrenciesDao(conn);
+            PlayersDaoInterface playersDaoInterface = new PlayersDao(conn);
 
             try{
-                result = currenciesDaoInterface.add(code, fullName, sign);
+                result = playersDaoInterface.add(code);
             } catch (CurrencyAlreadyExistException e){
                 throw new AlreadyExistException(code + " already exist", e);
             }
@@ -82,7 +82,7 @@ public class CurrencyService {
                 throw new DataAccessException("Failed add");
             }
 
-            return CurrencyMapper.INSTANCE.toDto(currenciesDaoInterface.findByCode(code));
+            return CurrencyMapper.INSTANCE.toDto(playersDaoInterface.findByName(code));
 
 
         } catch (SQLException e) {
@@ -101,15 +101,15 @@ public class CurrencyService {
 
         try (Connection conn = dataSource.getConnection()) {
 
-            CurrenciesDaoInterface currenciesDaoInterface = new CurrenciesDao(conn);
+            PlayersDaoInterface playersDaoInterface = new PlayersDao(conn);
 
-            int result = currenciesDaoInterface.update(code, fullName, sign);
+            int result = playersDaoInterface.update(code);
 
             if (result == 0){
                 throw new NotFoundException("Currency not found");
             }
 
-            return CurrencyMapper.INSTANCE.toDto(currenciesDaoInterface.findByCode(code));
+            return CurrencyMapper.INSTANCE.toDto(playersDaoInterface.findByName(code));
 
         } catch (SQLException e) {
             throw new DataAccessException("DB error", e);
@@ -126,9 +126,9 @@ public class CurrencyService {
 
         try (Connection conn = dataSource.getConnection()) {
 
-            CurrenciesDaoInterface currenciesDaoInterface = new CurrenciesDao(conn);
+            PlayersDaoInterface playersDaoInterface = new PlayersDao(conn);
 
-            int result = currenciesDaoInterface.delete(code);
+            int result = playersDaoInterface.delete(code);
 
             if (result == 0){
                 throw new NotFoundException("Not found");
@@ -142,35 +142,19 @@ public class CurrencyService {
 
     }
 
-    public CurrencyDto getCurrencyById(int id){
-
-        try (Connection conn = dataSource.getConnection()) {
-
-            CurrenciesDao currenciesDao = new CurrenciesDao(conn);
-
-            Currency currency = currenciesDao.findById(id);
-            if (currency == null){
-                throw new NotFoundException("Currency not found");
-            }
-            return CurrencyMapper.INSTANCE.toDto(currency);
-
-        } catch (SQLException e) {
-            throw new DataAccessException("DB error", e);
-        }
-    }
 
      protected int getIdFromCode(String code){
          code = normalizeCode(code);
 
          try (Connection conn = dataSource.getConnection()) {
 
-             CurrenciesDaoInterface currenciesDaoInterface = new CurrenciesDao(conn);
+             PlayersDaoInterface playersDaoInterface = new PlayersDao(conn);
 
-             Currency currency = currenciesDaoInterface.findByCode(code);
-             if (currency == null){
+             Player player = playersDaoInterface.findByName(code);
+             if (player == null){
                  throw new NotFoundException("Currency not found " + code);
              }
-             return currency.id();
+             return player.id();
 
          } catch (SQLException e) {
              throw new DataAccessException("DB error", e);
@@ -208,7 +192,7 @@ public class CurrencyService {
     // Принципиально не буду делать Validator классы ради 40 строчек. 1. Это задача сервиса. 2. Будет менее читаемо
 
     private void validateCode(String code){
-        if (!ADMISSION_CODE.matcher(code).matches()){       //  code.matches("^[A-Z0-9]{3}$")
+        if (!ADMISSION_CODE.matcher(code).matches()){       //  name.matches("^[A-Z0-9]{3}$")
             throw new ValidationException("Code must be latin and length 3 symbols");
         }
     }

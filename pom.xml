@@ -6,7 +6,8 @@
 
     <groupId>com.example_group</groupId>
     <artifactId>tennis-match-scoreboard</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0</version>
+    <packaging>war</packaging>
 
     <properties>
         <maven.compiler.source>25</maven.compiler.source>
@@ -57,6 +58,22 @@
             <artifactId>mapstruct</artifactId>
             <version>1.6.3</version>
         </dependency>
+        <!-- Source: https://mvnrepository.com/artifact/org.hibernate/hibernate-core -->
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-core</artifactId>
+            <version>7.4.3.Final</version>
+            <type>pom</type>
+            <scope>compile</scope>
+        </dependency>
+        <!-- Source: https://mvnrepository.com/artifact/org.postgresql/postgresql -->
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>42.7.11</version>
+            <scope>compile</scope>
+        </dependency>
+
     </dependencies>
 
     <build>

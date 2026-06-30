@@ -2,12 +2,12 @@ package ru.codeportfolio.services;
 
 import ru.codeportfolio.DTO.CurrencyDto;
 import ru.codeportfolio.DTO.ExchangeRateDto;
-import ru.codeportfolio.db.ExchangeRatesDao;
-import ru.codeportfolio.db.ExchangeRatesDaoInterface;
+import ru.codeportfolio.db.MatchesDao;
+import ru.codeportfolio.db.MatchesDaoInterface;
 import ru.codeportfolio.exceptions.*;
 
 import ru.codeportfolio.DTO.ExchangeDto;
-import ru.codeportfolio.models.ExchangeRate;
+import ru.codeportfolio.models.Match;
 import ru.codeportfolio.mapper.ExchangeRateMapper;
 
 import javax.sql.DataSource;
@@ -32,8 +32,8 @@ public class ExchangeRateService {
     public List<ExchangeRateDto> getAllExchangeRates() {
         try (Connection conn = dataSource.getConnection()) {
 
-            ExchangeRatesDaoInterface exchangeRatesDaoInterface = new ExchangeRatesDao(conn);
-            return ExchangeRateMapper.INSTANCE.toDtoList(exchangeRatesDaoInterface.getAll());
+            MatchesDaoInterface matchesDaoInterface = new MatchesDao(conn);
+            return ExchangeRateMapper.INSTANCE.toDtoList(matchesDaoInterface.getAll());
         } catch (SQLException e) {
             throw new DataAccessException("DB error", e);
         }
@@ -52,16 +52,16 @@ public class ExchangeRateService {
         int baseCurrencyId = currencyService.getIdFromCode(baseCurrencyCode);
         int targetCurrencyId = currencyService.getIdFromCode(targetCurrencyCode);
         // в идеале не делать эти лишние запросы в sql, а добавлять в RatesDao не по ID, а сразу по коду,
-        // но тогда это будет не чистый mvc - DAO не должен знать про code, его задача здесь - просто добавить в бд строчку
+        // но тогда это будет не чистый mvc - DAO не должен знать про name, его задача здесь - просто добавить в бд строчку
 
         int result;
 
         try (Connection conn = dataSource.getConnection()) {
 
-            ExchangeRatesDaoInterface exchangeRatesDaoInterface = new ExchangeRatesDao(conn);
+            MatchesDaoInterface matchesDaoInterface = new MatchesDao(conn);
 
             try{
-                result = exchangeRatesDaoInterface.add(baseCurrencyId, targetCurrencyId, rate);
+//                result = matchesDaoInterface.add(baseCurrencyId, targetCurrencyId);
             } catch (AlreadyExistException e){
                 throw new AlreadyExistException(e.getMessage() + ". " + baseCurrencyCode + targetCurrencyCode, e);
             }
@@ -71,7 +71,7 @@ public class ExchangeRateService {
                 throw new DataAccessException("Failed add");
             }
 
-            return ExchangeRateMapper.INSTANCE.toDto(exchangeRatesDaoInterface.findById(baseCurrencyId, targetCurrencyId));
+            return ExchangeRateMapper.INSTANCE.toDto(matchesDaoInterface.findById(baseCurrencyId, targetCurrencyId));
         } catch (SQLException e) {
             throw new DataAccessException("DB error", e);
         }
@@ -87,8 +87,8 @@ public class ExchangeRateService {
 
         try (Connection conn = dataSource.getConnection()) {
 
-            ExchangeRatesDaoInterface exchangeRatesDaoInterface = new ExchangeRatesDao(conn);
-            int result = exchangeRatesDaoInterface.delete(baseCurrencyId, targetCurrencyId);
+            MatchesDaoInterface matchesDaoInterface = new MatchesDao(conn);
+            int result = matchesDaoInterface.delete(baseCurrencyId, targetCurrencyId);
             if (result == 0){
                 throw new NotFoundException("Not found");
             }
@@ -109,15 +109,15 @@ public class ExchangeRateService {
 
         try (Connection conn = dataSource.getConnection()) {
 
-            ExchangeRatesDaoInterface exchangeRatesDaoInterface = new ExchangeRatesDao(conn);
+            MatchesDaoInterface matchesDaoInterface = new MatchesDao(conn);
 
-            ExchangeRate exchangeRate = exchangeRatesDaoInterface
+            Match match = matchesDaoInterface
                     .findById(baseCurrencyId, targetCurrencyId);
 
-            if (exchangeRate == null){
+            if (match == null){
                 throw new NotFoundException("Not found");
             }
-            return ExchangeRateMapper.INSTANCE.toDto(exchangeRate);
+            return ExchangeRateMapper.INSTANCE.toDto(match);
         } catch (SQLException e) {
             throw new DataAccessException("DB error", e);
         }
@@ -136,18 +136,18 @@ public class ExchangeRateService {
 
         try (Connection conn = dataSource.getConnection()) {
 
-            ExchangeRatesDaoInterface exchangeRatesDaoInterface = new ExchangeRatesDao(conn);
+            MatchesDaoInterface matchesDaoInterface = new MatchesDao(conn);
 
-            int result = exchangeRatesDaoInterface.update(baseCurrencyId, targetCurrencyId, rate);
+            int result = matchesDaoInterface.update(baseCurrencyId, targetCurrencyId, rate);
 
             if (result == 0){
                 throw new NotFoundException("Not found");
             }
 
-            ExchangeRate exchangeRate = exchangeRatesDaoInterface
+            Match match = matchesDaoInterface
                     .findById(baseCurrencyId, targetCurrencyId);
-            if (exchangeRate != null){
-                return ExchangeRateMapper.INSTANCE.toDto(exchangeRate);
+            if (match != null){
+                return ExchangeRateMapper.INSTANCE.toDto(match);
             } else {
                 throw new DataAccessException("Not found");
             }
@@ -177,19 +177,19 @@ public class ExchangeRateService {
         try (Connection conn = dataSource.getConnection()) {
 
 
-            ExchangeRatesDaoInterface exchangeRatesDaoInterface = new ExchangeRatesDao(conn);
+            MatchesDaoInterface matchesDaoInterface = new MatchesDao(conn);
 
-            ExchangeRate exchangeRate = exchangeRatesDaoInterface.findById(baseCurrencyId, targetCurrencyId);
+            Match match = matchesDaoInterface.findById(baseCurrencyId, targetCurrencyId);
 
-            if (exchangeRate != null){
-                rate = exchangeRate.rate();
+            if (match != null){
+                rate = match.winner();
             } else {
-                exchangeRate = exchangeRatesDaoInterface.findById(targetCurrencyId, baseCurrencyId);
+                match = matchesDaoInterface.findById(targetCurrencyId, baseCurrencyId);
 
-                if (exchangeRate != null) {
-                    rate = calculateReverseDecimal(exchangeRate.rate());
+                if (match != null) {
+                    rate = calculateReverseDecimal(match.winner());
                 } else {
-                    rate = calculateRateFromUsd(exchangeRatesDaoInterface, baseCurrencyId, targetCurrencyId);
+                    rate = calculateRateFromUsd(matchesDaoInterface, baseCurrencyId, targetCurrencyId);
                 }
             }
 
@@ -211,33 +211,33 @@ public class ExchangeRateService {
     }
 
 
-    private BigDecimal getUsdRate(ExchangeRatesDaoInterface exchangeRatesDaoInterface,
+    private BigDecimal getUsdRate(MatchesDaoInterface matchesDaoInterface,
                                   int baseCurrencyId, int mainCurrencyId){
         BigDecimal result;
-        ExchangeRate firstRate = exchangeRatesDaoInterface.findById(baseCurrencyId, mainCurrencyId);
+        Match firstRate = matchesDaoInterface.findById(baseCurrencyId, mainCurrencyId);
         if (firstRate != null){
-            return firstRate.rate();
+            return firstRate.winner();
         }
 
-        ExchangeRate secondRate = exchangeRatesDaoInterface.findById(mainCurrencyId, baseCurrencyId);
+        Match secondRate = matchesDaoInterface.findById(mainCurrencyId, baseCurrencyId);
         if (secondRate != null){
-            return calculateReverseDecimal(secondRate.rate());
+            return calculateReverseDecimal(secondRate.winner());
         }
 
         throw new NotFoundException("Rate " + baseCurrencyId + "-USD not found!");
 
     }
 
-    private BigDecimal calculateRateFromUsd(ExchangeRatesDaoInterface exchangeRatesDaoInterface,
+    private BigDecimal calculateRateFromUsd(MatchesDaoInterface matchesDaoInterface,
                                             int currencyId, int targetCurrencyId){
         int mainCurrencyId = currencyService.getIdFromCode(MAIN_CURRENCY_CODE);
 
         BigDecimal USDRateBase;
         BigDecimal USDRateTarget;
 
-        USDRateBase = getUsdRate(exchangeRatesDaoInterface, currencyId, mainCurrencyId);
+        USDRateBase = getUsdRate(matchesDaoInterface, currencyId, mainCurrencyId);
 
-        USDRateTarget = getUsdRate(exchangeRatesDaoInterface, targetCurrencyId, mainCurrencyId);
+        USDRateTarget = getUsdRate(matchesDaoInterface, targetCurrencyId, mainCurrencyId);
 
         return USDRateBase.divide(USDRateTarget,
                 6, RoundingMode.HALF_EVEN);

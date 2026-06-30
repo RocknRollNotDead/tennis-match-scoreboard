@@ -3,7 +3,7 @@ package ru.codeportfolio.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 import ru.codeportfolio.DTO.ExchangeRateDto;
-import ru.codeportfolio.models.ExchangeRate;
+import ru.codeportfolio.models.Match;
 
 import java.util.List;
 
@@ -13,9 +13,9 @@ import java.util.List;
 public interface ExchangeRateMapper {
 
     ExchangeRateMapper INSTANCE = Mappers.getMapper(ExchangeRateMapper.class);
-    ExchangeRateDto toDto(ExchangeRate exchangeRate);
+    ExchangeRateDto toDto(Match match);
 
-    List<ExchangeRateDto> toDtoList(List<ExchangeRate> exchangeRates);
+    List<ExchangeRateDto> toDtoList(List<Match> matches);
 
-    ExchangeRate toModel(ExchangeRateDto dto);
+    Match toModel(ExchangeRateDto dto);
 }

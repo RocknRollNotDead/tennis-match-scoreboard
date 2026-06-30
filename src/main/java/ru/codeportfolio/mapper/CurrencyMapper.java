@@ -4,7 +4,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 import ru.codeportfolio.DTO.CurrencyDto;
-import ru.codeportfolio.models.Currency;
+import ru.codeportfolio.models.Player;
 
 import java.util.List;
 
@@ -13,10 +13,10 @@ public interface CurrencyMapper {
     CurrencyMapper INSTANCE = Mappers.getMapper(CurrencyMapper.class);
 
     @Mapping(source = "fullName", target = "name")
-    CurrencyDto toDto(Currency currency);
+    CurrencyDto toDto(Player player);
 
 
-    List<CurrencyDto> toDtoList(List<Currency> currencies);
+    List<CurrencyDto> toDtoList(List<Player> currencies);
 
-    Currency toModel(CurrencyDto dto);
+    Player toModel(CurrencyDto dto);
 }

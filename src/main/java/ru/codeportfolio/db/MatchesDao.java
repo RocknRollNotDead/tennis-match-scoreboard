@@ -2,10 +2,9 @@ package ru.codeportfolio.db;
 
 import ru.codeportfolio.exceptions.AlreadyExistException;
 import ru.codeportfolio.exceptions.DataAccessException;
-import ru.codeportfolio.models.Currency;
-import ru.codeportfolio.models.ExchangeRate;
+import ru.codeportfolio.models.Player;
+import ru.codeportfolio.models.Match;
 
-import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -13,17 +12,42 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ExchangeRatesDao implements ExchangeRatesDaoInterface {
+public class MatchesDao implements MatchesDaoInterface {
 
     private final Connection conn;
 
-    public ExchangeRatesDao(Connection conn) {
+    public MatchesDao(Connection conn) {
         this.conn = conn;
 
     }
 
     @Override
-    public List<ExchangeRate> getAll() {
+    public List<Match> getAll() {
+        return List.of();
+    }
+
+    @Override
+    public int add(int homePlayerId, int guestPlayerId, int winnerId) {
+        return 0;
+    }
+
+    @Override
+    public int delete(int homePlayerId, int guestPlayerId) {
+        return 0;
+    }
+
+    @Override
+    public Match findById(int baseCurrencyId, int targetCurrencyId) {
+        return null;
+    }
+
+    @Override
+    public int update(int homePlayerId, int guestPlayerId, int winnerId) {
+        return 0;
+    }
+/*
+    @Override
+    public List<Match> getAll() {
         String sql = """
         
         SELECT er.id as er_id, er.rate,
@@ -35,45 +59,41 @@ public class ExchangeRatesDao implements ExchangeRatesDaoInterface {
         """;
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)){
-            List<ExchangeRate> exchangeRates = new ArrayList<>();
+            List<Match> matches = new ArrayList<>();
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
-                Currency baseCurrency = new Currency(
+                Player basePlayer = new Player(
                         rs.getInt("bc_id"),
-                        rs.getString("bc_code"),
-                        rs.getString("bc_name"),
-                        rs.getString("bc_sign")
+                        rs.getString("bc_code")
                 );
 
-                Currency targetCurrency = new Currency(
+                Player targetPlayer = new Player(
                         rs.getInt("tc_id"),
-                        rs.getString("tc_code"),
-                        rs.getString("tc_name"),
-                        rs.getString("tc_sign")
+                        rs.getString("tc_code")
                 );
 
-                ExchangeRate exchangeRate = new ExchangeRate(
+                Match match = new Match(
                         rs.getInt("er_id"),
-                        baseCurrency,
-                        targetCurrency,
+                        basePlayer,
+                        targetPlayer,
                         rs.getBigDecimal("rate")
                 );
-                exchangeRates.add(exchangeRate);
+                matches.add(match);
             }
-            return exchangeRates;
+            return matches;
         } catch (SQLException e) {
             throw new DataAccessException("Failed to fetch rates", e);
         }
     }
 
     @Override
-    public int add(int baseCurrencyId, int targetCurrencyId, BigDecimal rate) {
+    public int add(int homePlayerId, int guestPlayerId, int winnerId) {
         try (PreparedStatement stmt = conn.prepareStatement(
                 "INSERT INTO exchange_rates(base_currency_id, target_currency_id, rate) VALUES (?, ?, ?);"
         )){
-            stmt.setInt(1, baseCurrencyId);
-            stmt.setInt(2, targetCurrencyId);
-            stmt.setBigDecimal(3, rate);
+            stmt.setInt(1, homePlayerId);
+            stmt.setInt(2, guestPlayerId);
+            stmt.setBigDecimal(3, winnerId);
 
             return stmt.executeUpdate();
         } catch (SQLException e) {
@@ -100,13 +120,13 @@ public class ExchangeRatesDao implements ExchangeRatesDaoInterface {
     }
 
     @Override
-    public int delete(int baseCurrencyId, int targetCurrencyId){
+    public int delete(int homePlayerId, int guestPlayerId){
         try (PreparedStatement stmt = conn.prepareStatement(
                 "DELETE FROM exchange_rates WHERE base_currency_id = ? AND target_currency_id = ?;"
         )){
 
-            stmt.setInt(1, baseCurrencyId);
-            stmt.setInt(2, targetCurrencyId);
+            stmt.setInt(1, homePlayerId);
+            stmt.setInt(2, guestPlayerId);
             return stmt.executeUpdate();
         } catch (SQLException e) {
             throw new DataAccessException("Failed to delete rate", e);
@@ -114,7 +134,7 @@ public class ExchangeRatesDao implements ExchangeRatesDaoInterface {
     }
 
     @Override
-    public ExchangeRate findById(int baseCurrencyId, int targetCurrencyId){
+    public Match findById(int baseCurrencyId, int targetCurrencyId){
 
 
         String sql = """
@@ -133,24 +153,20 @@ public class ExchangeRatesDao implements ExchangeRatesDaoInterface {
 
                 if (rs.next()) {
 
-                    Currency baseCurrency = new Currency(
+                    Player basePlayer = new Player(
                             rs.getInt("bc_id"),
-                            rs.getString("bc_code"),
-                            rs.getString("bc_name"),
-                            rs.getString("bc_sign")
+                            rs.getString("bc_code")
                     );
 
-                    Currency targetCurrency = new Currency(
+                    Player targetPlayer = new Player(
                             rs.getInt("tc_id"),
-                            rs.getString("tc_code"),
-                            rs.getString("tc_name"),
-                            rs.getString("tc_sign")
+                            rs.getString("tc_code")
                     );
 
-                    return new ExchangeRate(
+                    return new Match(
                             rs.getInt("id"),
-                            baseCurrency,
-                            targetCurrency,
+                            basePlayer,
+                            targetPlayer,
                             rs.getBigDecimal("rate")
                     );
                 }
@@ -165,14 +181,14 @@ public class ExchangeRatesDao implements ExchangeRatesDaoInterface {
 
 
     @Override
-    public int update(int baseCurrencyId, int targetCurrencyId, BigDecimal rate){
+    public int update(int homePlayerId, int guestPlayerId, int winnerId){
 
         try (PreparedStatement stmt = conn.prepareStatement(
                     "UPDATE exchange_rates SET rate = ? WHERE base_currency_id = ? AND target_currency_id = ?"
             )){
-            stmt.setBigDecimal(1, rate);
-            stmt.setInt(2, baseCurrencyId);
-            stmt.setInt(3, targetCurrencyId);
+            stmt.setBigDecimal(1, winnerId);
+            stmt.setInt(2, homePlayerId);
+            stmt.setInt(3, guestPlayerId);
             return stmt.executeUpdate();
         } catch (SQLException e) {
             throw new DataAccessException("Failed to update rate", e);
@@ -183,7 +199,7 @@ public class ExchangeRatesDao implements ExchangeRatesDaoInterface {
         return e.getMessage() != null && e.getMessage().contains("UNIQUE constraint failed");
     }
 
-
+*/
 
 
 
