@@ -26,7 +26,7 @@ public class DbApplication {
 
 
 
-        Match match = matchesDao.find(player2, player1).orElseThrow();
+        Match match = matchesDao.find(player2, player1).get(0);
 
 //        for (Match match3 : matchesDao.getAll()) {
 //            System.out.println(match3);

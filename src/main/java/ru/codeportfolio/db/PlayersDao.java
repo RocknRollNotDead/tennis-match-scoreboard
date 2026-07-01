@@ -3,6 +3,8 @@ package ru.codeportfolio.db;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.exception.ConstraintViolationException;
+import ru.codeportfolio.exceptions.AlreadyExistException;
 import ru.codeportfolio.exceptions.CurrencyAlreadyExistException;
 import ru.codeportfolio.exceptions.DataAccessException;
 import ru.codeportfolio.models.Player;
@@ -51,6 +53,8 @@ public class PlayersDao implements PlayersDaoInterface {
 
             session.getTransaction().commit();
             return player;
+        } catch (ConstraintViolationException e){
+            throw  new AlreadyExistException(e); // условно
         }
     }
 

@@ -8,4 +8,10 @@ public class AlreadyExistException extends RuntimeException {
         super(message, cause);
     }
 
+    public AlreadyExistException() {
+    }
+
+    public AlreadyExistException(Throwable cause) {
+        super(cause);
+    }
 }

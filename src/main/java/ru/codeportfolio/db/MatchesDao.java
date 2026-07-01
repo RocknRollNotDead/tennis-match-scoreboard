@@ -1,10 +1,12 @@
 package ru.codeportfolio.db;
 
+import org.hibernate.NonUniqueResultException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.TransientPropertyValueException;
 import org.hibernate.exception.ConstraintViolationException;
 import ru.codeportfolio.exceptions.AlreadyExistException;
+import ru.codeportfolio.exceptions.CannotFindNessesaryEntity;
 import ru.codeportfolio.exceptions.DataAccessException;
 import ru.codeportfolio.models.Player;
 import ru.codeportfolio.models.Match;
@@ -38,6 +40,8 @@ public class MatchesDao implements MatchesDaoInterface {
 
             session.getTransaction().commit();
             return match;
+        } catch (ConstraintViolationException e){
+            throw  new AlreadyExistException(e);
         }
         // такое уже есть
         // ошибка базы
@@ -51,6 +55,8 @@ public class MatchesDao implements MatchesDaoInterface {
 
             session.getTransaction().commit();
             return match;
+        } catch (ConstraintViolationException e){
+            throw  new AlreadyExistException(e);
         }
 
     }
@@ -58,17 +64,17 @@ public class MatchesDao implements MatchesDaoInterface {
 
 
     @Override
-    public Optional<Match> find(Player homePlayer, Player guestPlayer){
+    public List<Match> find(Player homePlayer, Player guestPlayer){
         try (Session session = factory.openSession()) {
             session.beginTransaction();
 
-            Match match = session.createQuery("from Match where homePlayer = :homePlayer " +
+            List<Match> matches = session.createQuery("from Match where homePlayer = :homePlayer " +
                     "and guestPlayer = :guestPlayer", Match.class)
                     .setParameter("homePlayer", homePlayer)
-                    .setParameter("guestPlayer", guestPlayer).uniqueResult(); // может кинуть NonUniqueResultException
+                    .setParameter("guestPlayer", guestPlayer).list();
 
             session.getTransaction().commit();
-            return Optional.ofNullable(match); // может вернуть null
+            return matches;
         }
         // не нашлось
         // ошибка базы
@@ -99,10 +105,15 @@ public class MatchesDao implements MatchesDaoInterface {
                     .setParameter("homePlayer", homePlayer)
                     .setParameter("guestPlayer", guestPlayer).uniqueResult(); // может вернуть null
 
+            if(match == null){
+                return Optional.empty();
+            }
             match.setWinner(winner);  // может кинуть ConstraintViolationException если null
 
             session.getTransaction().commit();
             return Optional.of(match);
+        } catch (NonUniqueResultException e){
+            throw new CannotFindNessesaryEntity(e);
         }
         // такого нет
         // такие значения уже есть (не обновилось)

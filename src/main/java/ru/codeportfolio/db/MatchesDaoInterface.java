@@ -11,7 +11,7 @@ public interface MatchesDaoInterface {
     Match save(Player homePlayer, Player guestPlayer, Player winner);
     Match save(Match match);
 
-    Optional<Match> find(Player homePlayer, Player guestPlayer);
+    List<Match> find(Player homePlayer, Player guestPlayer);
     List<Match> getAll();
 
     Optional<Match> update(Player homePlayer, Player guestPlayer, Player winner);

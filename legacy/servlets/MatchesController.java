@@ -1,31 +1,35 @@
 package ru.codeportfolio.servlets;
 
 import com.google.gson.Gson;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import ru.codeportfolio.DTO.CurrencyDto;
-import ru.codeportfolio.exceptions.UncorrectRequestException;
-import ru.codeportfolio.services.CurrencyService;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import ru.codeportfolio.models.Match;
 
-import javax.sql.DataSource;
-import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 @WebServlet(urlPatterns = {"/currency/*", "/currencies"})
-public class CurrenciesServlet extends HttpServlet {
 
-    private CurrencyService currencyService;
+@Controller
+@RequestMapping("/matches")
+public class MatchesController {
+
+
     private final Gson gson = new Gson();
 
+    @RequestMapping("/")
+    public List<Match> getMatches(){
+        return new ArrayList<>();
+    }
+/*
     public void init(){
 
         DataSource dataSource = (DataSource) getServletContext().getAttribute("dataSource");
         currencyService = new CurrencyService(dataSource);
     }
 
-    @Override
+
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
@@ -56,7 +60,7 @@ public class CurrenciesServlet extends HttpServlet {
 
     }
 
-    @Override
+
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
@@ -74,7 +78,7 @@ public class CurrenciesServlet extends HttpServlet {
         String json = gson.toJson(result);
         resp.getWriter().write(json);
 
-    }
+    }*/
 
 }
 
