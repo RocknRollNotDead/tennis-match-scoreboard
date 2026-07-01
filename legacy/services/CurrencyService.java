@@ -103,11 +103,11 @@ public class CurrencyService {
 
             PlayersDaoInterface playersDaoInterface = new PlayersDao(conn);
 
-            int result = playersDaoInterface.update(code);
-
-            if (result == 0){
-                throw new NotFoundException("Currency not found");
-            }
+//            int result = playersDaoInterface.update(code);
+//
+//            if (result == 0){
+//                throw new NotFoundException("Currency not found");
+//            }
 
             return CurrencyMapper.INSTANCE.toDto(playersDaoInterface.findByName(code));
 
@@ -143,7 +143,7 @@ public class CurrencyService {
     }
 
 
-     protected int getIdFromCode(String code){
+     /*protected int getIdFromCode(String code){
          code = normalizeCode(code);
 
          try (Connection conn = dataSource.getConnection()) {
@@ -154,14 +154,14 @@ public class CurrencyService {
              if (player == null){
                  throw new NotFoundException("Currency not found " + code);
              }
-             return player.id();
+//             return player.id();
 
          } catch (SQLException e) {
              throw new DataAccessException("DB error", e);
          }
 
 
-    }
+    }*/
 
 
 

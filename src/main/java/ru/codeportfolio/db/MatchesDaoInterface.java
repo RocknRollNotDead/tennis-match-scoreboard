@@ -1,17 +1,20 @@
 package ru.codeportfolio.db;
 
 import ru.codeportfolio.models.Match;
+import ru.codeportfolio.models.Player;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface MatchesDaoInterface {
+
+    Match save(Player homePlayer, Player guestPlayer, Player winner);
+    Match save(Match match);
+
+    Optional<Match> find(Player homePlayer, Player guestPlayer);
     List<Match> getAll();
 
-    int add(int homePlayerId, int guestPlayerId, int winnerId);
+    Optional<Match> update(Player homePlayer, Player guestPlayer, Player winner);
 
-    int delete(int homePlayerId, int guestPlayerId);
-
-    Match findById(int baseCurrencyId, int targetCurrencyId);
-
-    int update(int homePlayerId, int guestPlayerId, int winnerId);
+    boolean delete(Player homePlayer, Player guestPlayer);
 }

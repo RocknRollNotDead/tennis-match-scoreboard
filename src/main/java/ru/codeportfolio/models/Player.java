@@ -9,16 +9,16 @@ import java.util.List;
 public class Player {
 
     @Id
-    long id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long id;
 
-    @Column(unique = true, nullable = false)
-    String name;
+    @Column(unique = true, nullable = false, length = 100)
+    private String name;
 
     public Player() {
     }
 
-    public Player(long id, String name) {
-        this.id = id;
+    public Player(String name) {
         this.name = name;
     }
 
@@ -30,5 +30,11 @@ public class Player {
         return name;
     }
 
-
+    @Override
+    public String toString() {
+        return "Player{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                '}';
+    }
 }

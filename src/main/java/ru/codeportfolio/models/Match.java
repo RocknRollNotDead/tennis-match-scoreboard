@@ -1,12 +1,19 @@
 package ru.codeportfolio.models;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.Check;
+import org.hibernate.annotations.DialectOverride;
 
 @Entity
-@Table (name = "matches")
+@Table (name = "matches",
+        check = @CheckConstraint(
+                name = "3 column must indicate on this players",
+                constraint = "winner = player_1 OR winner = player_2 OR winner IS NULL"))
+@Check(constraints = "winner = player_1 OR winner = player_2")
 public class Match {
 
         @Id
+        @GeneratedValue(strategy = GenerationType.IDENTITY)
         private long id;
 
         @ManyToOne
@@ -24,11 +31,15 @@ public class Match {
         public Match() {
         }
 
-        public Match(long id, Player homePlayer, Player guestPlayer, Player winner) {
-                this.id = id;
+        public Match(Player homePlayer, Player guestPlayer, Player winner) {
                 this.homePlayer = homePlayer;
                 this.guestPlayer = guestPlayer;
                 this.winner = winner;
+        }
+
+        public Match(Player homePlayer, Player guestPlayer) {
+                this.homePlayer = homePlayer;
+                this.guestPlayer = guestPlayer;
         }
 
         public long getId() {
@@ -49,5 +60,15 @@ public class Match {
 
         public void setWinner(Player winner) {
                 this.winner = winner;
+        }
+
+        @Override
+        public String toString() {
+                return "Match{" +
+                        "id=" + id +
+                        ", homePlayer=" + homePlayer +
+                        ", guestPlayer=" + guestPlayer +
+                        ", winner=" + winner +
+                        '}';
         }
 }

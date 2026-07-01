@@ -1,5 +1,9 @@
 package ru.codeportfolio.db;
 
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.TransientPropertyValueException;
+import org.hibernate.exception.ConstraintViolationException;
 import ru.codeportfolio.exceptions.AlreadyExistException;
 import ru.codeportfolio.exceptions.DataAccessException;
 import ru.codeportfolio.models.Player;
@@ -11,196 +15,124 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class MatchesDao implements MatchesDaoInterface {
 
-    private final Connection conn;
+    private final SessionFactory factory;
 
-    public MatchesDao(Connection conn) {
-        this.conn = conn;
+    public MatchesDao(SessionFactory factory) {
+        this.factory = factory;
+    }
+
+
+
+    @Override
+    public Match save(Player homePlayer, Player guestPlayer, Player winner) {
+        // кидает TransientPropertyValueException, как и все кроме get
+        try (Session session = factory.openSession()) {
+            session.beginTransaction();
+
+            Match match = new Match(homePlayer, guestPlayer, winner);
+            session.persist(match);  // может кинуть ConstraintViolationException
+
+            session.getTransaction().commit();
+            return match;
+        }
+        // такое уже есть
+        // ошибка базы
+    }
+
+    public Match save(Match match){
+        try (Session session = factory.openSession()) {
+            session.beginTransaction();
+
+            session.persist(match); // может кинуть ConstraintViolationException
+
+            session.getTransaction().commit();
+            return match;
+        }
+
+    }
+
+
+
+    @Override
+    public Optional<Match> find(Player homePlayer, Player guestPlayer){
+        try (Session session = factory.openSession()) {
+            session.beginTransaction();
+
+            Match match = session.createQuery("from Match where homePlayer = :homePlayer " +
+                    "and guestPlayer = :guestPlayer", Match.class)
+                    .setParameter("homePlayer", homePlayer)
+                    .setParameter("guestPlayer", guestPlayer).uniqueResult(); // может кинуть NonUniqueResultException
+
+            session.getTransaction().commit();
+            return Optional.ofNullable(match); // может вернуть null
+        }
+        // не нашлось
+        // ошибка базы
+
 
     }
 
     @Override
     public List<Match> getAll() {
-        return List.of();
-    }
+        try (Session session = factory.openSession()) {
+            session.beginTransaction();
 
-    @Override
-    public int add(int homePlayerId, int guestPlayerId, int winnerId) {
-        return 0;
-    }
+            List<Match> matches = session.createQuery("from Match ", Match.class).list();
 
-    @Override
-    public int delete(int homePlayerId, int guestPlayerId) {
-        return 0;
-    }
-
-    @Override
-    public Match findById(int baseCurrencyId, int targetCurrencyId) {
-        return null;
-    }
-
-    @Override
-    public int update(int homePlayerId, int guestPlayerId, int winnerId) {
-        return 0;
-    }
-/*
-    @Override
-    public List<Match> getAll() {
-        String sql = """
-        
-        SELECT er.id as er_id, er.rate,
-                               bc.id as bc_id, bc.code as bc_code, bc.full_name as bc_name, bc.sign as bc_sign,
-                               tc.id as tc_id, tc.code as tc_code, tc.full_name as tc_name, tc.sign as tc_sign
-        FROM exchange_rates er
-        JOIN currencies bc ON er.base_currency_id = bc.id
-        JOIN currencies tc ON er.target_currency_id = tc.id
-        """;
-
-        try (PreparedStatement stmt = conn.prepareStatement(sql)){
-            List<Match> matches = new ArrayList<>();
-            ResultSet rs = stmt.executeQuery();
-            while (rs.next()) {
-                Player basePlayer = new Player(
-                        rs.getInt("bc_id"),
-                        rs.getString("bc_code")
-                );
-
-                Player targetPlayer = new Player(
-                        rs.getInt("tc_id"),
-                        rs.getString("tc_code")
-                );
-
-                Match match = new Match(
-                        rs.getInt("er_id"),
-                        basePlayer,
-                        targetPlayer,
-                        rs.getBigDecimal("rate")
-                );
-                matches.add(match);
-            }
+            session.getTransaction().commit();
             return matches;
-        } catch (SQLException e) {
-            throw new DataAccessException("Failed to fetch rates", e);
         }
     }
 
-    @Override
-    public int add(int homePlayerId, int guestPlayerId, int winnerId) {
-        try (PreparedStatement stmt = conn.prepareStatement(
-                "INSERT INTO exchange_rates(base_currency_id, target_currency_id, rate) VALUES (?, ?, ?);"
-        )){
-            stmt.setInt(1, homePlayerId);
-            stmt.setInt(2, guestPlayerId);
-            stmt.setBigDecimal(3, winnerId);
 
-            return stmt.executeUpdate();
-        } catch (SQLException e) {
-            if (!isCurrencyAlreadyExist(e)){
-                throw new DataAccessException("Failed to add rate", e);
+    @Override
+    public Optional<Match> update(Player homePlayer, Player guestPlayer, Player winner){
+        try (Session session = factory.openSession()) {
+            session.beginTransaction();
+
+            Match match = session.createQuery("from Match where homePlayer = :homePlayer " +
+                            "and guestPlayer = :guestPlayer", Match.class)
+                    .setParameter("homePlayer", homePlayer)
+                    .setParameter("guestPlayer", guestPlayer).uniqueResult(); // может вернуть null
+
+            match.setWinner(winner);  // может кинуть ConstraintViolationException если null
+
+            session.getTransaction().commit();
+            return Optional.of(match);
+        }
+        // такого нет
+        // такие значения уже есть (не обновилось)
+        // ошибка базы
+    }
+
+
+    @Override
+    public boolean delete(Player homePlayer, Player guestPlayer){
+        boolean result = false;
+
+        try (Session session = factory.openSession()) {
+            session.beginTransaction();
+
+            Match match = session.createQuery("from Match where homePlayer = :homePlayer " +
+                            "and guestPlayer = :guestPlayer", Match.class)
+                    .setParameter("homePlayer", homePlayer)
+                    .setParameter("guestPlayer", guestPlayer).uniqueResult();  // может кинуть NonUniqueResultException
+            if (match != null){
+                session.remove(match);
+                result = true;
             }
-            // не хочу заниматься вытаскиванием SQLException в сервисе, где я ловлю DataAccessException. Это слишком сложно.
-            // Этим занимается Spring. К тому же SQLite выбрасывает только сообщения, и только по ним можно определить какая ошибка
-            // Когда в Spring есть специальные методы, которые определяют Unique constraint.
-            throw new AlreadyExistException("This rate already exist in this table", e);
-        }
-    }
 
-    public int deleteRate(int id){ // DAO не должен знать, что делает Service. DAO должен только давать методы для
-        try (PreparedStatement stmt = conn.prepareStatement( // CRUD. Он не должен знать, используется там delete или нет.
-                "DELETE FROM exchange_rates WHERE id = ?;"
-        )){
-
-            stmt.setInt(1, id);
-            return stmt.executeUpdate();
-        } catch (SQLException e) {
-            throw new DataAccessException("Failed to delete rate", e);
-        }
-    }
-
-    @Override
-    public int delete(int homePlayerId, int guestPlayerId){
-        try (PreparedStatement stmt = conn.prepareStatement(
-                "DELETE FROM exchange_rates WHERE base_currency_id = ? AND target_currency_id = ?;"
-        )){
-
-            stmt.setInt(1, homePlayerId);
-            stmt.setInt(2, guestPlayerId);
-            return stmt.executeUpdate();
-        } catch (SQLException e) {
-            throw new DataAccessException("Failed to delete rate", e);
-        }
-    }
-
-    @Override
-    public Match findById(int baseCurrencyId, int targetCurrencyId){
-
-
-        String sql = """
-        SELECT er.id, bc.id as bc_id, bc.code as bc_code, bc.full_name as bc_name, bc.sign as bc_sign,
-                tc.id AS tc_id, tc.code as tc_code, tc.full_name as tc_name, tc.sign as tc_sign, er.rate
-        FROM exchange_rates er
-        JOIN currencies as bc ON bc.id = er.base_currency_id
-        JOIN currencies as tc ON tc.id = er.target_currency_id
-        WHERE base_currency_id = ? AND target_currency_id = ?
-        """;
-
-        try (PreparedStatement stmt = conn.prepareStatement(sql)){
-            stmt.setInt(1, baseCurrencyId);
-            stmt.setInt(2, targetCurrencyId);
-            try (ResultSet rs = stmt.executeQuery()) {
-
-                if (rs.next()) {
-
-                    Player basePlayer = new Player(
-                            rs.getInt("bc_id"),
-                            rs.getString("bc_code")
-                    );
-
-                    Player targetPlayer = new Player(
-                            rs.getInt("tc_id"),
-                            rs.getString("tc_code")
-                    );
-
-                    return new Match(
-                            rs.getInt("id"),
-                            basePlayer,
-                            targetPlayer,
-                            rs.getBigDecimal("rate")
-                    );
-                }
-
-                return null;
-            }
-        } catch (SQLException e) {
-            throw new DataAccessException("Failed to get rate", e);
+            session.getTransaction().commit();
         }
 
+        return result;
+
+        // не нашлось
+        // ошибка бд
     }
-
-
-    @Override
-    public int update(int homePlayerId, int guestPlayerId, int winnerId){
-
-        try (PreparedStatement stmt = conn.prepareStatement(
-                    "UPDATE exchange_rates SET rate = ? WHERE base_currency_id = ? AND target_currency_id = ?"
-            )){
-            stmt.setBigDecimal(1, winnerId);
-            stmt.setInt(2, homePlayerId);
-            stmt.setInt(3, guestPlayerId);
-            return stmt.executeUpdate();
-        } catch (SQLException e) {
-            throw new DataAccessException("Failed to update rate", e);
-        }
-    }
-
-    private boolean isCurrencyAlreadyExist(SQLException e) {
-        return e.getMessage() != null && e.getMessage().contains("UNIQUE constraint failed");
-    }
-
-*/
-
-
 
 }

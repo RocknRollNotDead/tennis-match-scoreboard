@@ -12,7 +12,7 @@ import java.util.List;
 public interface CurrencyMapper {
     CurrencyMapper INSTANCE = Mappers.getMapper(CurrencyMapper.class);
 
-    @Mapping(source = "fullName", target = "name")
+    //@Mapping(source = "fullName", target = "name")
     CurrencyDto toDto(Player player);
 
 
