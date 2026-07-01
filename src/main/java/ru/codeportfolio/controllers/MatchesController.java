@@ -40,7 +40,6 @@ public class MatchesController {
 
     @GetMapping("/{uuid}")
     public ResponseEntity<ResponseDto> getScore(@PathVariable UUID uuid){
-        ///
         ResponseDto responseDto = service.findMatch(uuid);
         return ResponseEntity.ok(responseDto);
     }
