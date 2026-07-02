@@ -13,12 +13,18 @@ public class Initializator implements WebApplicationInitializer {
 
     @Override
     public void onStartup(ServletContext servletContext){
-        AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
-        context.register(SpringMVCConfig.class);
-        servletContext.addListener(new ContextLoaderListener(context));
+
+        AnnotationConfigWebApplicationContext rootContext = new AnnotationConfigWebApplicationContext();
+        rootContext.register(DbConfig.class);
+
+        AnnotationConfigWebApplicationContext controllerContext = new AnnotationConfigWebApplicationContext();
+        controllerContext.register(SpringMVCConfig.class);
+        controllerContext.setParent(rootContext);
+
+        servletContext.addListener(new ContextLoaderListener(rootContext));
 
         ServletRegistration.Dynamic servletRegistration = servletContext.addServlet(
-                        DISPATCHER, new DispatcherServlet(context));
+                        DISPATCHER, new DispatcherServlet(controllerContext));
         servletRegistration.addMapping("/");
         servletRegistration.setLoadOnStartup(1);
 

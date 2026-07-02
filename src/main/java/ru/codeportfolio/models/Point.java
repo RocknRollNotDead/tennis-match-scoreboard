@@ -1,8 +1,11 @@
 package ru.codeportfolio.models;
 
 public enum Point {
-//    NULL_STADY
-//    ONE_STADY("15")
+    NULL_STUDY("00"),
+    ONE_STUDY("15"),
+    SECOND_STUDY("30"),
+    THRID_STUDY("40"),
+    LAST_STUDY("AD");
 
 
     private final String code;
@@ -11,7 +14,6 @@ public enum Point {
         this.code = code;
     }
 
-    @JsonValue
     public String getCode() {
         return code;
     }

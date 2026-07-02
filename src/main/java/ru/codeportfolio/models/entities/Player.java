@@ -1,8 +1,6 @@
-package ru.codeportfolio.models;
+package ru.codeportfolio.models.entities;
 
 import jakarta.persistence.*;
-
-import java.util.List;
 
 @Entity
 @Table(name = "players")
@@ -10,7 +8,7 @@ public class Player {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     @Column(unique = true, nullable = false, length = 100)
     private String name;

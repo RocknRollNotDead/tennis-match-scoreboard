@@ -4,20 +4,18 @@ package ru.codeportfolio.db;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.exception.ConstraintViolationException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
 import ru.codeportfolio.exceptions.AlreadyExistException;
-import ru.codeportfolio.exceptions.CurrencyAlreadyExistException;
-import ru.codeportfolio.exceptions.DataAccessException;
-import ru.codeportfolio.models.Player;
+import ru.codeportfolio.models.entities.Player;
 
-import java.sql.*;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
+@Repository
 public class PlayersDao implements PlayersDaoInterface {
 
 
-
+    @Autowired
     private final SessionFactory factory;
 
     public PlayersDao(SessionFactory factory) {
@@ -64,8 +62,8 @@ public class PlayersDao implements PlayersDaoInterface {
         try (Session session = factory.openSession()) {
             session.beginTransaction();
 
-            Player player = session.createQuery("from Player where name = :name", Player.class)
-                    .setParameter("name", name).uniqueResult(); // может кинуть NonUniqueResultException
+            Player player = session.createQuery("from Player where LOWER(name) = :name", Player.class)
+                    .setParameter("name", name.toLowerCase()).uniqueResult(); // может кинуть NonUniqueResultException
 
             session.getTransaction().commit();
             return Optional.ofNullable(player);

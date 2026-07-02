@@ -1,8 +1,7 @@
-package ru.codeportfolio.models;
+package ru.codeportfolio.models.entities;
 
 import jakarta.persistence.*;
 import org.hibernate.annotations.Check;
-import org.hibernate.annotations.DialectOverride;
 
 @Entity
 @Table (name = "matches",
@@ -14,7 +13,7 @@ public class Match {
 
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
-        private long id;
+        private Long id;
 
         @ManyToOne
         @JoinColumn(name = "player_1", nullable = false)

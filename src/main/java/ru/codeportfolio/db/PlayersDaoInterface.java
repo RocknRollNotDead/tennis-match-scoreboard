@@ -1,6 +1,6 @@
 package ru.codeportfolio.db;
 
-import ru.codeportfolio.models.Player;
+import ru.codeportfolio.models.entities.Player;
 
 import java.util.List;
 import java.util.Optional;
