@@ -79,6 +79,11 @@
             <version>7.0.8</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.5.37</version>
+        </dependency>
 
 
     </dependencies>

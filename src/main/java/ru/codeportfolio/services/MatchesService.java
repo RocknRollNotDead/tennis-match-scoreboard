@@ -1,12 +1,13 @@
 package ru.codeportfolio.services;
 
 import org.springframework.stereotype.Service;
-import ru.codeportfolio.DTO.MatchDto;
+import ru.codeportfolio.DTO.OneMatchDto;
 import ru.codeportfolio.DTO.MatchesResponseDto;
 import ru.codeportfolio.DTO.ResponseDto;
 import ru.codeportfolio.DTO.ToDtoUtil;
 import ru.codeportfolio.db.MatchesDao;
 import ru.codeportfolio.db.PlayersDao;
+import ru.codeportfolio.exceptions.ValidationException;
 import ru.codeportfolio.models.entities.Match;
 import ru.codeportfolio.models.entities.Player;
 import ru.codeportfolio.models.Score;
@@ -29,24 +30,34 @@ public class MatchesService {
         this.playersDao = playersDao;
     }
 
-    private static Map<UUID, Score> scores = new ConcurrentHashMap<>();
+    private static final Map<UUID, Score> scores = new ConcurrentHashMap<>();
 
 
     public UUID createMatch(String firstPlayerName, String secondPlayerName) {
-        // создать новый объект класса match или score.
-        // Score score = createScore(firstPlayerName, secondPlayerName)
-        // UUID uuid = generateUUID(score);
-        // scores.put(uuid, score)
-        // return uuid;
-        return null;
+        // todo обработать создлание players
+        Score score = createScore(firstPlayerName, secondPlayerName);
+        UUID uuid = generateUUID();
+        scores.put(uuid, score);
+        return uuid;
     }
 
     public ResponseDto incPoint(UUID uuid, String playerName) {
-        return null;
+
+        Score score = scores.get(uuid);
+        if (score.getHomePlayer().getName().equalsIgnoreCase(playerName)) {
+            score.incHomePlayerPoint();
+        } else if (score.getGuestPlayer().getName().equalsIgnoreCase(playerName)) {
+            score.incGuestPlayerPoint();
+        } else {
+            throw new ValidationException("not find player");
+        }
+        return ToDtoUtil.toResponseDtoFromScore(
+                score);
     }
 
     public ResponseDto findMatch(UUID uuid) {
-        return null;
+        return ToDtoUtil.toResponseDtoFromScore(
+                scores.get(uuid));
     }
 
     public MatchesResponseDto getAllMatches(Integer page, String playerName) {
@@ -69,17 +80,12 @@ public class MatchesService {
         }
 
         matches = getMatchesPage(matches, page);
-        List <MatchDto> matchesDto = ToDtoUtil.toMatchDtoList(matches);
+        List<OneMatchDto> matchesDto = ToDtoUtil.toMatchDtoList(matches);
 
         MatchesResponseDto matchesResponseDto = new MatchesResponseDto(matchesDto, page, totalPages);
         // переделать в дто с помощью MapStruct
         return matchesResponseDto;
     }
-
-
-
-
-
 
 
     private Integer calculateTotalPages(List<Match> matches) {
@@ -104,14 +110,18 @@ public class MatchesService {
     }
 
 
-    private Score createScore() {
-        // создаваться начальная стадия объекта
-        return null; // вернуть обьект score
+    private Score createScore(String firstPlayerName, String secondPlayerName) {
+        System.out.println(firstPlayerName + "   " + secondPlayerName);
+        Player homePlayer = playersDao.findByName(firstPlayerName).orElseThrow();
+        System.out.println(firstPlayerName);
+        Player guestPlayer = playersDao.findByName(secondPlayerName).orElseThrow();
+        System.out.println(secondPlayerName);
+
+        return new Score(homePlayer, guestPlayer);
     }
 
-    private UUID generateUUID(Score score) {
-
-        return null;
+    private UUID generateUUID() {
+        return UUID.randomUUID();
     }
 
 

@@ -1,0 +1,28 @@
+package ru.codeportfolio.models;
+
+public class TieBreak {
+    private int homePlayerPoints;
+    private int guestPlayerPoints;
+
+    public TieBreak() {
+        homePlayerPoints = 0;
+        guestPlayerPoints = 0;
+    }
+
+    public int getHomePlayerPoints() {
+        return homePlayerPoints;
+    }
+
+    public int getGuestPlayerPoints() {
+        return guestPlayerPoints;
+    }
+
+    public void incHomePlayerGames(){
+        homePlayerPoints++;
+    }
+
+    public void incGuestPlayerGames(){
+        guestPlayerPoints++;
+    }
+
+}
