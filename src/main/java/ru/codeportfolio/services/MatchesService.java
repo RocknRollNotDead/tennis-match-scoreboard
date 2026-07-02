@@ -7,16 +7,15 @@ import ru.codeportfolio.DTO.ResponseDto;
 import ru.codeportfolio.DTO.ToDtoUtil;
 import ru.codeportfolio.db.MatchesDao;
 import ru.codeportfolio.db.PlayersDao;
+import ru.codeportfolio.exceptions.NotFoundException;
 import ru.codeportfolio.exceptions.ValidationException;
 import ru.codeportfolio.models.entities.Match;
 import ru.codeportfolio.models.entities.Player;
 import ru.codeportfolio.models.Score;
 import ru.codeportfolio.validators.PlayerValidateUtil;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.io.Serializable;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
@@ -34,7 +33,6 @@ public class MatchesService {
 
 
     public UUID createMatch(String firstPlayerName, String secondPlayerName) {
-        // todo обработать создлание players
         Score score = createScore(firstPlayerName, secondPlayerName);
         UUID uuid = generateUUID();
         scores.put(uuid, score);
@@ -49,26 +47,37 @@ public class MatchesService {
         } else if (score.getGuestPlayer().getName().equalsIgnoreCase(playerName)) {
             score.incGuestPlayerPoint();
         } else {
-            throw new ValidationException("not find player");
+            throw new NotFoundException("not find player " + playerName);
         }
         return ToDtoUtil.toResponseDtoFromScore(
                 score);
     }
 
     public ResponseDto findMatch(UUID uuid) {
-        return ToDtoUtil.toResponseDtoFromScore(
-                scores.get(uuid));
+
+        Score score;
+        try {
+            score = scores.get(uuid);
+        } catch (NoSuchElementException e) {
+            throw new NotFoundException("not find score " + uuid);
+        } catch (RuntimeException e) {
+            throw e;
+        }
+
+        return ToDtoUtil.toResponseDtoFromScore(score);
     }
 
     public MatchesResponseDto getAllMatches(Integer page, String playerName) {
 
         List<Match> matches;
-
+        String playerNameForExceptionMessage = playerName;
         if (playerName == null || playerName.isBlank()) {
             matches = matchesDao.getAll();
         } else {
             playerName = PlayerValidateUtil.normalizeRequest(playerName);
-            Player player = playersDao.findByName(playerName).orElseThrow();
+
+            Player player = playersDao.findByName(playerName).orElseThrow(() ->
+                    new NotFoundException("not find player " + playerNameForExceptionMessage));
             matches = matchesDao.find(player);
         }
 
@@ -111,11 +120,10 @@ public class MatchesService {
 
 
     private Score createScore(String firstPlayerName, String secondPlayerName) {
-        System.out.println(firstPlayerName + "   " + secondPlayerName);
-        Player homePlayer = playersDao.findByName(firstPlayerName).orElseThrow();
-        System.out.println(firstPlayerName);
-        Player guestPlayer = playersDao.findByName(secondPlayerName).orElseThrow();
-        System.out.println(secondPlayerName);
+        Player homePlayer = playersDao.findByName(firstPlayerName).orElse(
+                playersDao.save(new Player(firstPlayerName)));
+        Player guestPlayer = playersDao.findByName(secondPlayerName).orElse(
+                playersDao.save(new Player(secondPlayerName)));
 
         return new Score(homePlayer, guestPlayer);
     }
