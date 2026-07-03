@@ -25,7 +25,7 @@ public class MatchesExceptionHandler {
 
     @ExceptionHandler(AlreadyExistException.class)
     public ResponseEntity<Map<String, String>> handleGeneric(AlreadyExistException e) {
-        return buildResponse(HttpStatus.NOT_FOUND, e.getMessage());
+        return buildResponse(HttpStatus.CONFLICT, e.getMessage());
     }
 
     @ExceptionHandler(RuntimeException.class)

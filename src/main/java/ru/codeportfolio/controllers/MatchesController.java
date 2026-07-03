@@ -38,7 +38,6 @@ public class MatchesController {
                                                      @RequestBody GetMatchRequestDto dto) {
 
         String playerName = dto.getName();
-        System.out.println(playerName + dto); //
         return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(gson.toJson(service.incPoint(uuid, playerName)));
 
     }

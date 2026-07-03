@@ -8,7 +8,6 @@ import org.hibernate.annotations.Check;
         check = @CheckConstraint(
                 name = "3 column must indicate on this players",
                 constraint = "winner = player_1 OR winner = player_2 OR winner IS NULL"))
-@Check(constraints = "winner = player_1 OR winner = player_2")
 public class Match {
 
         @Id
