@@ -16,6 +16,7 @@ public class ToDtoUtil {
 
     public static ScoreResponseDto2legacy toResponseDtoFromScore2legacy(Score score){
 
+
         Integer tieBreakHomePlayerPoints = null;
         Integer tieBreakGuestPlayerPoints = null;
         String winnerName = null;
@@ -47,6 +48,13 @@ public class ToDtoUtil {
 
     public static ScoreResponseDto toResponseDtoFromScore(Score score){
 
+        String homePlayerPoints = null;
+        String guestPlayerPoints = null;
+        if (score.getGame() != null){
+            homePlayerPoints = score.getGame().getHomePlayerPoints().getCode();
+            guestPlayerPoints = score.getGame().getGuestPlayerPoints().getCode();
+        }
+
         Integer tieBreakHomePlayerPoints = null;
         Integer tieBreakGuestPlayerPoints = null;
         String winnerName = null;
@@ -62,14 +70,14 @@ public class ToDtoUtil {
 
         PlayerDto firstPlayer = new PlayerDto(
                 score.getHomePlayer().getName(),
-                score.getGame().getHomePlayerPoints().getCode(),
+                homePlayerPoints,
                 score.getSet().getHomePlayerGames(),
                 score.getGeneralScoreHomePlayer(),
                 tieBreakHomePlayerPoints
                 );
         PlayerDto secondPlayer = new PlayerDto(
                 score.getGuestPlayer().getName(),
-                score.getGame().getGuestPlayerPoints().getCode(),
+                guestPlayerPoints,
                 score.getSet().getGuestPlayerGames(),
                 score.getGeneralScoreGuestPlayer(),
                 tieBreakGuestPlayerPoints

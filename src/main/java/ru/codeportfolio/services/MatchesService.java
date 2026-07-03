@@ -45,6 +45,16 @@ public class MatchesService {
         } else {
             throw new NotFoundException("not find player " + playerName);
         }
+
+        if (score.getWinner() != null){
+            matchesDao.save(
+                    new Match(
+                            score.getHomePlayer(),
+                            score.getGuestPlayer(),
+                            score.getWinner()
+                    ));
+        }
+
         return ToDtoUtil.toResponseDtoFromScore(
                 score);
     }

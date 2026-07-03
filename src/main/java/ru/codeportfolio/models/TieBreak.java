@@ -1,6 +1,9 @@
 package ru.codeportfolio.models;
 
+import ru.codeportfolio.models.entities.Player;
+
 public class TieBreak {
+
     private int homePlayerPoints;
     private int guestPlayerPoints;
 

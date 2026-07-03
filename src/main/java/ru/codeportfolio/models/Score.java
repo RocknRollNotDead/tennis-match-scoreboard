@@ -24,111 +24,167 @@ public class Score {
     // play new set
     // play new match
 
+//    public void incPoint(Player player){
+//        if (tieBreak != null) {
+//            incInPlayTieBreak(player);
+//        } else {
+//            game.incPlayerPoints(player);
+//            if (game.getPlayerPoints(player).getScore() >= 4) {
+//                incGame(player);
+//            }
+//        }
+//    }
+//    private void incInPlayTieBreak(Player player){
+//        tieBreak.incPlayerPoints(player);
+//        if ((tieBreak.getPlayerPoints(player) >= 7) &&
+//                checkDifferencyTo2balls(
+//                        tieBreak.getHomePlayerPoints(),
+//                        tieBreak.getGuestPlayerPoints()
+//                )) {
+//            incGeneralScorePlayer(player);
+//            game = new Game();
+//            set = new Set();
+//            tieBreak = null;
+//        }
+//    }
+//
+//
+//
+
+    private void incGeneralScorePlayer(Player player) {
+        if (player.equals(homePlayer)){
+            generalScoreHomePlayer++;
+        } else if (player.equals(guestPlayer)){
+            generalScoreGuestPlayer++;
+        }
+    }
+
 
     public void incHomePlayerPoint() {
 
         if (tieBreak != null) {
-            tieBreak.incHomePlayerPoints();
-            if ((tieBreak.getHomePlayerPoints() >= 7) &&
-                    checkDifferencyTo2balls(
-                            tieBreak.getHomePlayerPoints(),
-                            tieBreak.getGuestPlayerPoints()
-                    )) {
-                set.incHomePlayerGames();
-                game = new Game();
-                tieBreak = null;
+            incHomeInPlayTieBreak();
+        } else {
+            game.incHomePlayerPoints();
+            if (game.getHomePlayerPoints().getScore() >= 4) {
+                incHomeGame();
             }
-        }
-
-
-        game.incHomePlayerPoints();
-
-        if (game.getHomePlayerPoints().getScore() >= 4) {
-            if (checkDifferencyTo2balls(
-                    game.getHomePlayerPoints().getScore(),
-                    game.getGuestPlayerPoints().getScore())) {
-
-                set.incHomePlayerGames();
-                game = new Game();
-
-
-                if (set.getHomePlayerGames() >= 6) {
-
-                    if (checkDifferencyTo2balls(
-                            set.getHomePlayerGames(),
-                            set.getGuestPlayerGames()
-                    )) {
-                        generalScoreHomePlayer++;
-                        set = new Set();
-
-                        if (generalScoreHomePlayer >= 2) {
-                            winner = homePlayer;
-                        }
-                    } else if (set.getGuestPlayerGames() >= 6) {
-                        turnOnTieBreak();
-                    } else {
-                        generalScoreHomePlayer++;
-                    }
-
-                }
-            } else if (game.getGuestPlayerPoints().getScore() >= 4) {
-                game.lowerHomePlayerPoint();
-                game.lowerGuestPlayerPoint();
-            }
-
         }
     }
+
+
+    private void incHomeGame(){
+        if (checkDifferencyTo2balls(
+                game.getHomePlayerPoints().getScore(),
+                game.getGuestPlayerPoints().getScore())) {
+
+            set.incHomePlayerGames();
+            game = new Game();
+
+            if (set.getHomePlayerGames() >= 6) {
+
+                incHomeSetOrTurnOnTiebreak();
+
+            }
+        } else if (game.getGuestPlayerPoints().getScore() >= 4) {
+            game.lowerHomePlayerPoint();
+            game.lowerGuestPlayerPoint();
+        }
+    }
+
+    private void incHomeSetOrTurnOnTiebreak(){
+        if (checkDifferencyTo2balls(
+                set.getHomePlayerGames(),
+                set.getGuestPlayerGames()
+        )) {
+            generalScoreHomePlayer++;
+            set = new Set();
+
+            if (generalScoreHomePlayer >= 2) {
+                winner = homePlayer;
+            }
+
+        } else if (set.getGuestPlayerGames() >= 6) {
+            turnOnTieBreak();
+        }
+    }
+
+    private void incHomeInPlayTieBreak(){
+        tieBreak.incHomePlayerPoints();
+        if ((tieBreak.getHomePlayerPoints() >= 7) &&
+                checkDifferencyTo2balls(
+                        tieBreak.getHomePlayerPoints(),
+                        tieBreak.getGuestPlayerPoints()
+                )) {
+            generalScoreHomePlayer++;
+            game = new Game();
+            set = new Set();
+            tieBreak = null;
+        }
+    }
+
+    private void incGuestInPlayTieBreak(){
+        tieBreak.incGuestPlayerPoints();
+        if ((tieBreak.getGuestPlayerPoints() >= 7) &&
+                checkDifferencyTo2balls(
+                        tieBreak.getHomePlayerPoints(),
+                        tieBreak.getGuestPlayerPoints()
+                )) {
+            generalScoreGuestPlayer++;
+            game = new Game();
+            set = new Set();
+            tieBreak = null;
+        }
+    }
+
+
+
+
 
     public void incGuestPlayerPoint() {
 
         if (tieBreak != null) {
-            tieBreak.incGuestPlayerPoints();
-            if ((tieBreak.getGuestPlayerPoints() >= 7) &&
-                    checkDifferencyTo2balls(
-                            tieBreak.getGuestPlayerPoints(),
-                            tieBreak.getHomePlayerPoints()
-                    )) {
-                set.incGuestPlayerGames();
-                game = new Game();
-                tieBreak = null;
+            incGuestInPlayTieBreak();
+        } else {
+            game.incGuestPlayerPoints();
+
+            if (game.getGuestPlayerPoints().getScore() >= 4) {
+                incGuestGame();
             }
         }
+    }
 
-        game.incGuestPlayerPoints();
+    private void incGuestGame(){
+        if (checkDifferencyTo2balls(
+                game.getHomePlayerPoints().getScore(),
+                game.getGuestPlayerPoints().getScore())) {
 
-        if (game.getGuestPlayerPoints().getScore() >= 4) {
-            if (checkDifferencyTo2balls(
-                    game.getHomePlayerPoints().getScore(),
-                    game.getGuestPlayerPoints().getScore())) {
+            set.incGuestPlayerGames();
+            game = new Game();
 
-                set.incGuestPlayerGames();
-                game = new Game();
-
-                if (set.getGuestPlayerGames() >= 6) {
-                    if (checkDifferencyTo2balls(
-                            set.getHomePlayerGames(),
-                            set.getGuestPlayerGames()
-                    )) {
-                        generalScoreGuestPlayer++;
-                        set = new Set();
-
-                        if (generalScoreGuestPlayer >= 2) {
-                            winner = guestPlayer;
-                        }
-                    } else if (set.getHomePlayerGames() >= 6) {
-                        turnOnTieBreak();
-                    } else {
-                        generalScoreGuestPlayer++;
-                    }
-                }
-            } else if (game.getHomePlayerPoints().getScore() >= 4) {
-                game.lowerHomePlayerPoint();
-                game.lowerGuestPlayerPoint();
-
+            if (set.getGuestPlayerGames() >= 6) {
+                incGuestSetOrTurnOnTiebreak();
             }
+        } else if (game.getHomePlayerPoints().getScore() >= 4) {
+            game.lowerHomePlayerPoint();
+            game.lowerGuestPlayerPoint();
         }
+    }
 
+    private void incGuestSetOrTurnOnTiebreak(){
+        if (checkDifferencyTo2balls(
+                set.getHomePlayerGames(),
+                set.getGuestPlayerGames()
+        )) {
+            generalScoreGuestPlayer++;
+            set = new Set();
 
+            if (generalScoreGuestPlayer >= 2) {
+                winner = guestPlayer;
+            }
+        } else if (set.getHomePlayerGames() >= 6) {
+            turnOnTieBreak();
+        }
     }
 
     private void turnOnTieBreak() {
@@ -157,12 +213,6 @@ public class Score {
         return set;
     }
 
-    //    public Set getSet(Player player) {
-//        if (player.equals(homePlayer)){
-//            return set.getGuestPlayerGames();
-//        }
-//        return set;
-//    }
     public TieBreak getTieBreak() {
         return tieBreak;
     }
