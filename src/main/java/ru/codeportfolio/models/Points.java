@@ -31,8 +31,18 @@ public class Points {
         return code;
     }
 
+    int getScore(){
+        return score;
+    }
+
     public void nextStudy(){
         score++;
+    }
+
+    public void lowerPoint(){
+        if (score >= 4){ // AD
+            score--;
+        }
     }
 
 

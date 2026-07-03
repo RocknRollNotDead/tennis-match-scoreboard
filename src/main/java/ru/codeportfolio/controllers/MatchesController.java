@@ -1,17 +1,19 @@
 package ru.codeportfolio.controllers;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.codeportfolio.DTO.MatchesResponseDto;
-import ru.codeportfolio.DTO.ResponseDto;
+import ru.codeportfolio.DTO.ScoreResponseDto;
 import ru.codeportfolio.DTO.requestDto.CreateMatchRequestDto;
 import ru.codeportfolio.DTO.requestDto.GetMatchRequestDto;
 import ru.codeportfolio.services.MatchesService;
 
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -20,28 +22,32 @@ public class MatchesController {
     @Autowired
     MatchesService service;
 
+    @Autowired
+    Gson gson;
 
     @PostMapping()
-    public ResponseEntity<UUID> createMatch(@RequestBody CreateMatchRequestDto dto) {
+    public ResponseEntity<Map<String, String>> createMatch(@RequestBody CreateMatchRequestDto dto) {
         String firstPlayerName = dto.getFirstPlayerName();
         String secondPlayerName = dto.getSecondPlayerName();
-        UUID id = service.createMatch(firstPlayerName, secondPlayerName);
-        return ResponseEntity.status(HttpStatus.CREATED).body(id);
+        UUID uuid = service.createMatch(firstPlayerName, secondPlayerName);
+        return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("id", uuid.toString()));
     }
 
     @PostMapping("/{uuid}/point")
-    public ResponseEntity<ResponseDto> incPoint(@PathVariable UUID uuid,
-                                                @RequestBody GetMatchRequestDto dto) {
+    public ResponseEntity<String> incPoint(@PathVariable(name = "uuid") String uuid,
+                                                     @RequestBody GetMatchRequestDto dto) {
 
-        String playerName = dto.getPlayerName();
-        return ResponseEntity.ok(service.incPoint(uuid, playerName));
+        String playerName = dto.getName();
+        System.out.println(playerName + dto); //
+        return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(gson.toJson(service.incPoint(uuid, playerName)));
 
     }
 
     @GetMapping("/{uuid}")
-    public ResponseEntity<ResponseDto> getScore(@PathVariable UUID uuid) {
-        ResponseDto responseDto = service.findMatch(uuid);
-        return ResponseEntity.ok(responseDto);
+    public ResponseEntity<String> getScore(@PathVariable(name = "uuid") String uuid) {
+        ScoreResponseDto scoreResponseDto = service.findMatch(uuid);
+        //
+        return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(gson.toJson(scoreResponseDto));
     }
 
 

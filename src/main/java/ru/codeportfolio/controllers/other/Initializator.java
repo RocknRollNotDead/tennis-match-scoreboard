@@ -15,7 +15,7 @@ public class Initializator implements WebApplicationInitializer {
     public void onStartup(ServletContext servletContext){
 
         AnnotationConfigWebApplicationContext rootContext = new AnnotationConfigWebApplicationContext();
-        rootContext.register(DbConfig.class);
+        rootContext.register(MatchesRootConfig.class);
 
         AnnotationConfigWebApplicationContext controllerContext = new AnnotationConfigWebApplicationContext();
         controllerContext.register(SpringMVCConfig.class);
@@ -25,6 +25,7 @@ public class Initializator implements WebApplicationInitializer {
 
         ServletRegistration.Dynamic servletRegistration = servletContext.addServlet(
                         DISPATCHER, new DispatcherServlet(controllerContext));
+
         servletRegistration.addMapping("/");
         servletRegistration.setLoadOnStartup(1);
 

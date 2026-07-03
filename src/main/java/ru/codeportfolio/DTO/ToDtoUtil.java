@@ -4,7 +4,6 @@ import ru.codeportfolio.models.Score;
 import ru.codeportfolio.models.entities.Match;
 
 import java.util.List;
-import java.util.UUID;
 
 public class ToDtoUtil {
 
@@ -15,8 +14,22 @@ public class ToDtoUtil {
                         match.getWinner().getName())).toList();
     }
 
-    public static ResponseDto toResponseDtoFromScore(Score score){
-        ResponseDto responseDto = new ResponseDto(
+    public static ScoreResponseDto2legacy toResponseDtoFromScore2legacy(Score score){
+
+        Integer tieBreakHomePlayerPoints = null;
+        Integer tieBreakGuestPlayerPoints = null;
+        String winnerName = null;
+
+        if(score.getTieBreak() != null){
+            tieBreakHomePlayerPoints = score.getTieBreak().getHomePlayerPoints();
+            tieBreakGuestPlayerPoints = score.getTieBreak().getGuestPlayerPoints();
+        }
+
+        if (score.getWinner() != null){
+            winnerName = score.getWinner().getName();
+        }
+
+        ScoreResponseDto2legacy scoreResponseDto = new ScoreResponseDto2legacy(
                 score.getHomePlayer().getName(),
                 score.getGuestPlayer().getName(),
                 score.getGame().getHomePlayerPoints().getCode(),
@@ -25,11 +38,50 @@ public class ToDtoUtil {
                 score.getSet().getGuestPlayerGames(),
                 score.getGeneralScoreHomePlayer(),
                 score.getGeneralScoreGuestPlayer(),
-                score.getTieBreak().getHomePlayerPoints(),
-                score.getTieBreak().getGuestPlayerPoints(),
-                score.getWinner().getName()
+                tieBreakHomePlayerPoints,
+                tieBreakGuestPlayerPoints,
+                winnerName
         );
-        return responseDto;
+        return scoreResponseDto;
     }
+
+    public static ScoreResponseDto toResponseDtoFromScore(Score score){
+
+        Integer tieBreakHomePlayerPoints = null;
+        Integer tieBreakGuestPlayerPoints = null;
+        String winnerName = null;
+
+        if(score.getTieBreak() != null){
+            tieBreakHomePlayerPoints = score.getTieBreak().getHomePlayerPoints();
+            tieBreakGuestPlayerPoints = score.getTieBreak().getGuestPlayerPoints();
+        }
+
+        if (score.getWinner() != null){
+            winnerName = score.getWinner().getName();
+        }
+
+        PlayerDto firstPlayer = new PlayerDto(
+                score.getHomePlayer().getName(),
+                score.getGame().getHomePlayerPoints().getCode(),
+                score.getSet().getHomePlayerGames(),
+                score.getGeneralScoreHomePlayer(),
+                tieBreakHomePlayerPoints
+                );
+        PlayerDto secondPlayer = new PlayerDto(
+                score.getGuestPlayer().getName(),
+                score.getGame().getGuestPlayerPoints().getCode(),
+                score.getSet().getGuestPlayerGames(),
+                score.getGeneralScoreGuestPlayer(),
+                tieBreakGuestPlayerPoints
+                );
+
+
+        ScoreResponseDto scoreResponseDto = new ScoreResponseDto(
+                firstPlayer, secondPlayer, winnerName
+        );
+        return scoreResponseDto;
+    }
+
+
 
 }

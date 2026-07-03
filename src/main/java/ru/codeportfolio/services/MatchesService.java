@@ -1,20 +1,15 @@
 package ru.codeportfolio.services;
 
 import org.springframework.stereotype.Service;
-import ru.codeportfolio.DTO.OneMatchDto;
-import ru.codeportfolio.DTO.MatchesResponseDto;
-import ru.codeportfolio.DTO.ResponseDto;
-import ru.codeportfolio.DTO.ToDtoUtil;
+import ru.codeportfolio.DTO.*;
 import ru.codeportfolio.db.MatchesDao;
 import ru.codeportfolio.db.PlayersDao;
 import ru.codeportfolio.exceptions.NotFoundException;
-import ru.codeportfolio.exceptions.ValidationException;
 import ru.codeportfolio.models.entities.Match;
 import ru.codeportfolio.models.entities.Player;
 import ru.codeportfolio.models.Score;
 import ru.codeportfolio.validators.PlayerValidateUtil;
 
-import java.io.Serializable;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -39,9 +34,10 @@ public class MatchesService {
         return uuid;
     }
 
-    public ResponseDto incPoint(UUID uuid, String playerName) {
+    public ScoreResponseDto incPoint(String uuid, String playerName) {
 
-        Score score = scores.get(uuid);
+        UUID id = UUID.fromString(uuid);
+        Score score = scores.get(id);
         if (score.getHomePlayer().getName().equalsIgnoreCase(playerName)) {
             score.incHomePlayerPoint();
         } else if (score.getGuestPlayer().getName().equalsIgnoreCase(playerName)) {
@@ -53,11 +49,12 @@ public class MatchesService {
                 score);
     }
 
-    public ResponseDto findMatch(UUID uuid) {
+    public ScoreResponseDto findMatch(String uuid) {
 
+        UUID id = UUID.fromString(uuid);
         Score score;
         try {
-            score = scores.get(uuid);
+            score = scores.get(id);
         } catch (NoSuchElementException e) {
             throw new NotFoundException("not find score " + uuid);
         } catch (RuntimeException e) {
@@ -70,6 +67,8 @@ public class MatchesService {
     public MatchesResponseDto getAllMatches(Integer page, String playerName) {
 
         List<Match> matches;
+
+
         String playerNameForExceptionMessage = playerName;
         if (playerName == null || playerName.isBlank()) {
             matches = matchesDao.getAll();
@@ -81,18 +80,24 @@ public class MatchesService {
             matches = matchesDao.find(player);
         }
 
+
         Integer totalPages = calculateTotalPages(matches);
+
+
         if (page >= 1) {
             page = page - 1;
         } else {
             page = null;
         }
-
         matches = getMatchesPage(matches, page);
+        if (page != null){
+            page = page + 1;
+        }
+
+
         List<OneMatchDto> matchesDto = ToDtoUtil.toMatchDtoList(matches);
 
         MatchesResponseDto matchesResponseDto = new MatchesResponseDto(matchesDto, page, totalPages);
-        // переделать в дто с помощью MapStruct
         return matchesResponseDto;
     }
 
@@ -120,10 +125,11 @@ public class MatchesService {
 
 
     private Score createScore(String firstPlayerName, String secondPlayerName) {
-        Player homePlayer = playersDao.findByName(firstPlayerName).orElse(
-                playersDao.save(new Player(firstPlayerName)));
-        Player guestPlayer = playersDao.findByName(secondPlayerName).orElse(
-                playersDao.save(new Player(secondPlayerName)));
+        Player homePlayer = playersDao.findByName(firstPlayerName).orElseGet(
+                () -> playersDao.save(new Player(firstPlayerName)));
+
+        Player guestPlayer = playersDao.findByName(secondPlayerName).orElseGet(
+                () -> playersDao.save(new Player(secondPlayerName)));
 
         return new Score(homePlayer, guestPlayer);
     }

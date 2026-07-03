@@ -1,6 +1,6 @@
 package ru.codeportfolio.DTO;
 
-public record ResponseDto(
+public record ScoreResponseDto2legacy(
         String firstPlayerName,
         String secondPlayerName,
         String firstPlayerPoints,
@@ -12,4 +12,5 @@ public record ResponseDto(
         Integer firstPlayerTieBreakPoints,
         Integer secondPlayerTieBreakPoints,
         String winnerName) {
+
 }

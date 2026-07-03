@@ -1,5 +1,6 @@
 package ru.codeportfolio.DTO.requestDto;
 
+
 public class CreateMatchRequestDto {
     private final String firstPlayerName;
     private final String secondPlayerName;

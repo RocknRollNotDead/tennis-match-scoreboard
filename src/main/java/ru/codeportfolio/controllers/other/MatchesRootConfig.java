@@ -1,5 +1,7 @@
 package ru.codeportfolio.controllers.other;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.hibernate.SessionFactory;
@@ -7,7 +9,6 @@ import org.hibernate.boot.Metadata;
 import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
-import org.hibernate.cfg.Environment;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -21,7 +22,7 @@ import java.util.Map;
 
 @Configuration
 @ComponentScan(basePackages = { "ru.codeportfolio.services", "ru.codeportfolio.db" })
-public class DbConfig {
+public class MatchesRootConfig {
 
 
     @Bean
@@ -59,5 +60,12 @@ public class DbConfig {
         Metadata metadata = sources.getMetadataBuilder().build();
         return metadata.getSessionFactoryBuilder().build();
     }
+
+    @Bean
+    public Gson getGson(){
+        return new GsonBuilder().serializeNulls().create();
+    }
+
+
 
 }

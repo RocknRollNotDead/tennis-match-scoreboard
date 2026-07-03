@@ -17,11 +17,11 @@ public class TieBreak {
         return guestPlayerPoints;
     }
 
-    public void incHomePlayerGames(){
+    public void incHomePlayerPoints(){
         homePlayerPoints++;
     }
 
-    public void incGuestPlayerGames(){
+    public void incGuestPlayerPoints(){
         guestPlayerPoints++;
     }
 

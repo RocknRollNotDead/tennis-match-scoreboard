@@ -4,8 +4,11 @@ package ru.codeportfolio.db;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.exception.ConstraintViolationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import ru.codeportfolio.controllers.other.MatchesExceptionHandler;
 import ru.codeportfolio.exceptions.AlreadyExistException;
 import ru.codeportfolio.models.entities.Player;
 
@@ -18,6 +21,7 @@ public class PlayersDao implements PlayersDaoInterface {
     @Autowired
     private final SessionFactory factory;
 
+    private static final Logger log = LoggerFactory.getLogger(PlayersDao.class);
     public PlayersDao(SessionFactory factory) {
         this.factory = factory;
     }
@@ -62,10 +66,11 @@ public class PlayersDao implements PlayersDaoInterface {
         try (Session session = factory.openSession()) {
             session.beginTransaction();
 
-            Player player = session.createQuery("from Player where LOWER(name) = :name", Player.class)
-                    .setParameter("name", name.toLowerCase()).uniqueResult(); // может кинуть NonUniqueResultException
+            Player player = session.createQuery("from Player where name = :name", Player.class)
+                    .setParameter("name", name).uniqueResult(); // может кинуть NonUniqueResultException
 
             session.getTransaction().commit();
+
             return Optional.ofNullable(player);
         }
 

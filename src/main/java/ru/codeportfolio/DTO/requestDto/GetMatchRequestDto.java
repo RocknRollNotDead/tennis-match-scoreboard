@@ -1,13 +1,13 @@
 package ru.codeportfolio.DTO.requestDto;
 
 public class GetMatchRequestDto {
-    private final String playerName;
+    private final String name;
 
-    public GetMatchRequestDto(String playerName) {
-        this.playerName = playerName;
+    public GetMatchRequestDto(String name) {
+        this.name = name;
     }
 
-    public String getPlayerName() {
-        return playerName;
+    public String getName() {
+        return name;
     }
 }

@@ -14,7 +14,7 @@ public class Game {
     }
 
     public void incHomePlayerPoints() {
-        this.homePlayerPoints.nextStudy();
+        homePlayerPoints.nextStudy();
     }
 
     public Points getGuestPlayerPoints() {
@@ -22,6 +22,17 @@ public class Game {
     }
 
     public void incGuestPlayerPoints() {
-        this.guestPlayerPoints.nextStudy();
+        guestPlayerPoints.nextStudy();
     }
+
+    public void lowerGuestPlayerPoint() {
+        guestPlayerPoints.lowerPoint();
+    }
+
+    public void lowerHomePlayerPoint() {
+        homePlayerPoints.lowerPoint();
+    }
+
+
+
 }
