@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import ru.codeportfolio.DTO.*;
 import ru.codeportfolio.db.MatchesDao;
 import ru.codeportfolio.db.PlayersDao;
+import ru.codeportfolio.exceptions.AlreadyExistException;
 import ru.codeportfolio.exceptions.NotFoundException;
 import ru.codeportfolio.models.entities.Match;
 import ru.codeportfolio.models.entities.Player;
@@ -28,6 +29,9 @@ public class MatchesService {
 
 
     public UUID createMatch(String firstPlayerName, String secondPlayerName) {
+        if (firstPlayerName.equals(secondPlayerName)){
+            throw new AlreadyExistException("нou can't play with yourself!");
+        }
         Score score = createScore(firstPlayerName, secondPlayerName);
         UUID uuid = generateUUID();
         scores.put(uuid, score);

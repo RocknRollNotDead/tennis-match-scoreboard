@@ -19,8 +19,13 @@ public class MatchesExceptionHandler {
     private static final Logger log = LoggerFactory.getLogger(MatchesExceptionHandler.class);
 
     @ExceptionHandler(NotFoundException.class)
-    public ResponseEntity<Map<String, String>> handleGeneric(NotFoundException ex) {
-        return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage());
+    public ResponseEntity<Map<String, String>> handleGeneric(NotFoundException e) {
+        return buildResponse(HttpStatus.NOT_FOUND, e.getMessage());
+    }
+
+    @ExceptionHandler(AlreadyExistException.class)
+    public ResponseEntity<Map<String, String>> handleGeneric(AlreadyExistException e) {
+        return buildResponse(HttpStatus.NOT_FOUND, e.getMessage());
     }
 
     @ExceptionHandler(RuntimeException.class)

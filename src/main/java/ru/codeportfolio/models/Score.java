@@ -12,6 +12,8 @@ public class Score {
     private int generalScoreHomePlayer = 0;
     private int generalScoreGuestPlayer = 0;
 
+    // поля по тз
+
 
     public Score(Player homePlayer, Player guestPlayer) {
         this.homePlayer = homePlayer;
@@ -19,37 +21,6 @@ public class Score {
         game = new Game();
         set = new Set();
     }
-
-    // play new game
-    // play new set
-    // play new match
-
-//    public void incPoint(Player player){
-//        if (tieBreak != null) {
-//            incInPlayTieBreak(player);
-//        } else {
-//            game.incPlayerPoints(player);
-//            if (game.getPlayerPoints(player).getScore() >= 4) {
-//                incGame(player);
-//            }
-//        }
-//    }
-//    private void incInPlayTieBreak(Player player){
-//        tieBreak.incPlayerPoints(player);
-//        if ((tieBreak.getPlayerPoints(player) >= 7) &&
-//                checkDifferencyTo2balls(
-//                        tieBreak.getHomePlayerPoints(),
-//                        tieBreak.getGuestPlayerPoints()
-//                )) {
-//            incGeneralScorePlayer(player);
-//            game = new Game();
-//            set = new Set();
-//            tieBreak = null;
-//        }
-//    }
-//
-//
-//
 
     private void incGeneralScorePlayer(Player player) {
         if (player.equals(homePlayer)){
