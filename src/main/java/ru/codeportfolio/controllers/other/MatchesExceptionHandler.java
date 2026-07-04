@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import ru.codeportfolio.controllers.MatchesController;
 import ru.codeportfolio.exceptions.AlreadyExistException;
+import ru.codeportfolio.exceptions.DataAccessException;
 import ru.codeportfolio.exceptions.NotFoundException;
 
 import java.time.Instant;
@@ -28,10 +29,16 @@ public class MatchesExceptionHandler {
         return buildResponse(HttpStatus.CONFLICT, e.getMessage());
     }
 
+    @ExceptionHandler(DataAccessException.class)
+    public ResponseEntity<Map<String, String>> handleGeneric(DataAccessException e) {
+        log.error(e.getMessage().toUpperCase(), e);
+        return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Database error!");
+    }
+
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<Map<String, String>> handleGeneric(RuntimeException e) {
         log.error(e.getMessage().toUpperCase(), e);
-        return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Backend error!");
     }
 
 

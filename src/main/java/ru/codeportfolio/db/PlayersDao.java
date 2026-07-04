@@ -1,6 +1,7 @@
 package ru.codeportfolio.db;
 
 
+import org.hibernate.NonUniqueResultException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.exception.ConstraintViolationException;
@@ -10,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import ru.codeportfolio.controllers.other.MatchesExceptionHandler;
 import ru.codeportfolio.exceptions.AlreadyExistException;
+import ru.codeportfolio.exceptions.CannotFindNessesaryEntity;
+import ru.codeportfolio.exceptions.DataAccessException;
 import ru.codeportfolio.models.entities.Player;
 
 import java.util.List;
@@ -29,23 +32,6 @@ public class PlayersDao implements PlayersDaoInterface {
 
 //todo переделать под transactionhelper
 
-    @Override
-    public Player save(String name) {
-        try (Session session = factory.openSession()) {
-            session.beginTransaction();
-
-            Player player = new Player(name);
-            session.persist(player);
-
-            session.getTransaction().commit();
-            return player;
-        }
-        // сценарии
-        // такое уже есть
-        // ошибка базы (например, недоступна)
-
-
-    }
 
     public Player save(Player player) {
         try (Session session = factory.openSession()) {
@@ -56,7 +42,9 @@ public class PlayersDao implements PlayersDaoInterface {
             session.getTransaction().commit();
             return player;
         } catch (ConstraintViolationException e){
-            throw  new AlreadyExistException(e); // условно
+            throw  new AlreadyExistException(e);
+        } catch (RuntimeException e) {
+            throw new DataAccessException("Database Error", e);
         }
     }
 
@@ -72,6 +60,10 @@ public class PlayersDao implements PlayersDaoInterface {
             session.getTransaction().commit();
 
             return Optional.ofNullable(player);
+        } catch (NonUniqueResultException e) {
+            throw new CannotFindNessesaryEntity(e);
+        } catch (RuntimeException e) {
+            throw new DataAccessException("Database Error", e);
         }
 
         // не нашлось
@@ -86,8 +78,9 @@ public class PlayersDao implements PlayersDaoInterface {
 
             session.getTransaction().commit();
             return players;
+        } catch (RuntimeException e) {
+            throw new DataAccessException("Database Error", e);
         }
-        // ошибка базы
     }
 
 
@@ -100,17 +93,20 @@ public class PlayersDao implements PlayersDaoInterface {
             session.beginTransaction();
 
             Player player = session.createQuery("from Player where name = :name", Player.class)
-                    .setParameter("name", name).uniqueResult();  // может кинуть NonUniqueResultException
+                    .setParameter("name", name).uniqueResult();
             if(player != null){
                 session.remove(player);
                 result = true;
             }
 
             session.getTransaction().commit();
+        } catch (NonUniqueResultException e) {
+            throw new CannotFindNessesaryEntity(e);
+        } catch (RuntimeException e) {
+            throw new DataAccessException("Database Error", e);
         }
         return result;
 
-        // ошибка базы
     }
 }
 

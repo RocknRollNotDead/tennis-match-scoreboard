@@ -9,7 +9,6 @@ import java.util.Optional;
 
 public interface PlayersDaoInterface {
 
-    Player save(String name);
     Player save(Player player);
 
     Optional<Player> findByName(String name);

@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import ru.codeportfolio.exceptions.AlreadyExistException;
 import ru.codeportfolio.exceptions.CannotFindNessesaryEntity;
+import ru.codeportfolio.exceptions.DataAccessException;
 import ru.codeportfolio.models.entities.Player;
 import ru.codeportfolio.models.entities.Match;
 
@@ -24,63 +25,24 @@ public class MatchesDao implements MatchesDaoInterface {
         this.sessionFactory = sessionFactory;
     }
 
-
-
-    @Override
-    public Match save(Player homePlayer, Player guestPlayer, Player winner) {
-        // кидает TransientPropertyValueException, как и все кроме get
+    public Match save(Match match) {
         try (Session session = sessionFactory.openSession()) {
             session.beginTransaction();
 
-            Match match = new Match(homePlayer, guestPlayer, winner);
-            session.persist(match);  // может кинуть ConstraintViolationException
+            session.persist(match);
 
             session.getTransaction().commit();
             return match;
-        } catch (ConstraintViolationException e){
-            throw  new AlreadyExistException(e);
-        }
-        // такое уже есть
-        // ошибка базы
-    }
-
-    public Match save(Match match){
-        try (Session session = sessionFactory.openSession()) {
-            session.beginTransaction();
-
-            session.persist(match); // может кинуть ConstraintViolationException
-
-            session.getTransaction().commit();
-            return match;
-        } catch (ConstraintViolationException e){
-            throw  new AlreadyExistException(e);
+        } catch (ConstraintViolationException e) {
+            throw new AlreadyExistException(e);
+        } catch (RuntimeException e) {
+            throw new DataAccessException(e);
         }
 
     }
 
 
-
-    @Override
-    public List<Match> find(Player homePlayer, Player guestPlayer){
-        try (Session session = sessionFactory.openSession()) {
-            session.beginTransaction();
-
-            List<Match> matches = session.createQuery("from Match where homePlayer = :homePlayer " +
-                    "and guestPlayer = :guestPlayer", Match.class)
-                    .setParameter("homePlayer", homePlayer)
-                    .setParameter("guestPlayer", guestPlayer).list();
-
-            session.getTransaction().commit();
-            return matches;
-        }
-        // не нашлось
-        // ошибка базы
-
-
-    }
-
-
-    public List<Match> find(Player player){
+    public List<Match> find(Player player) {
         try (Session session = sessionFactory.openSession()) {
             session.beginTransaction();
 
@@ -91,11 +53,11 @@ public class MatchesDao implements MatchesDaoInterface {
 
             session.getTransaction().commit();
             return matches;
+        }  catch (NonUniqueResultException e) {
+            throw new CannotFindNessesaryEntity(e);
+        } catch (RuntimeException e) {
+            throw new DataAccessException("Database Error", e);
         }
-        // не нашлось
-        // ошибка базы
-
-
     }
 
 
@@ -108,38 +70,39 @@ public class MatchesDao implements MatchesDaoInterface {
 
             session.getTransaction().commit();
             return matches;
+        } catch (RuntimeException e) {
+            throw new DataAccessException("Database Error", e);
         }
     }
 
 
     @Override
-    public Optional<Match> update(Player homePlayer, Player guestPlayer, Player winner){
+    public Optional<Match> update(Player homePlayer, Player guestPlayer, Player winner) {
         try (Session session = sessionFactory.openSession()) {
             session.beginTransaction();
 
             Match match = session.createQuery("from Match where homePlayer = :homePlayer " +
                             "and guestPlayer = :guestPlayer", Match.class)
                     .setParameter("homePlayer", homePlayer)
-                    .setParameter("guestPlayer", guestPlayer).uniqueResult(); // может вернуть null
+                    .setParameter("guestPlayer", guestPlayer).uniqueResult();
 
-            if(match == null){
+            if (match == null) {
                 return Optional.empty();
             }
-            match.setWinner(winner);  // может кинуть ConstraintViolationException если null
+            match.setWinner(winner);
 
             session.getTransaction().commit();
             return Optional.of(match);
-        } catch (NonUniqueResultException e){
+        } catch (NonUniqueResultException e) {
             throw new CannotFindNessesaryEntity(e);
+        } catch (RuntimeException e) {
+            throw new DataAccessException("Database Error", e);
         }
-        // такого нет
-        // такие значения уже есть (не обновилось)
-        // ошибка базы
     }
 
 
     @Override
-    public boolean delete(Player homePlayer, Player guestPlayer){
+    public boolean delete(Player homePlayer, Player guestPlayer) {
         boolean result = false;
 
         try (Session session = sessionFactory.openSession()) {
@@ -148,19 +111,20 @@ public class MatchesDao implements MatchesDaoInterface {
             Match match = session.createQuery("from Match where homePlayer = :homePlayer " +
                             "and guestPlayer = :guestPlayer", Match.class)
                     .setParameter("homePlayer", homePlayer)
-                    .setParameter("guestPlayer", guestPlayer).uniqueResult();  // может кинуть NonUniqueResultException
-            if (match != null){
+                    .setParameter("guestPlayer", guestPlayer).uniqueResult();
+            if (match != null) {
                 session.remove(match);
                 result = true;
             }
 
             session.getTransaction().commit();
+        }  catch (NonUniqueResultException e) {
+            throw new CannotFindNessesaryEntity(e);
+        } catch (RuntimeException e) {
+            throw new DataAccessException("Database Error", e);
         }
 
         return result;
-
-        // не нашлось
-        // ошибка бд
     }
 
 }
