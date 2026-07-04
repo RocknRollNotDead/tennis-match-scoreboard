@@ -22,14 +22,6 @@ public class Score {
         set = new Set();
     }
 
-    private void incGeneralScorePlayer(Player player) {
-        if (player.equals(homePlayer)){
-            generalScoreHomePlayer++;
-        } else if (player.equals(guestPlayer)){
-            generalScoreGuestPlayer++;
-        }
-    }
-
 
     public void incHomePlayerPoint() {
 
@@ -42,6 +34,20 @@ public class Score {
             }
         }
     }
+
+    public void incGuestPlayerPoint() {
+
+        if (tieBreak != null) {
+            incGuestInPlayTieBreak();
+        } else {
+            game.incGuestPlayerPoints();
+
+            if (game.getGuestPlayerPoints().getScore() >= 4) {
+                incGuestGame();
+            }
+        }
+    }
+
 
 
     private void incHomeGame(){
@@ -94,36 +100,7 @@ public class Score {
         }
     }
 
-    private void incGuestInPlayTieBreak(){
-        tieBreak.incGuestPlayerPoints();
-        if ((tieBreak.getGuestPlayerPoints() >= 7) &&
-                checkDifferencyTo2balls(
-                        tieBreak.getHomePlayerPoints(),
-                        tieBreak.getGuestPlayerPoints()
-                )) {
-            generalScoreGuestPlayer++;
-            game = new Game();
-            set = new Set();
-            tieBreak = null;
-        }
-    }
 
-
-
-
-
-    public void incGuestPlayerPoint() {
-
-        if (tieBreak != null) {
-            incGuestInPlayTieBreak();
-        } else {
-            game.incGuestPlayerPoints();
-
-            if (game.getGuestPlayerPoints().getScore() >= 4) {
-                incGuestGame();
-            }
-        }
-    }
 
     private void incGuestGame(){
         if (checkDifferencyTo2balls(
@@ -158,6 +135,22 @@ public class Score {
         }
     }
 
+    private void incGuestInPlayTieBreak(){
+        tieBreak.incGuestPlayerPoints();
+        if ((tieBreak.getGuestPlayerPoints() >= 7) &&
+                checkDifferencyTo2balls(
+                        tieBreak.getHomePlayerPoints(),
+                        tieBreak.getGuestPlayerPoints()
+                )) {
+            generalScoreGuestPlayer++;
+            game = new Game();
+            set = new Set();
+            tieBreak = null;
+        }
+    }
+
+
+
     private void turnOnTieBreak() {
         tieBreak = new TieBreak();
         game = null;
@@ -167,6 +160,9 @@ public class Score {
         return Math.abs(first - second) >= 2;
 
     }
+
+
+    // getters
 
     public Player getGuestPlayer() {
         return guestPlayer;

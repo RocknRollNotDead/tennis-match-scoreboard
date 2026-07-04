@@ -6,7 +6,7 @@ import org.hibernate.annotations.Check;
 @Entity
 @Table (name = "matches",
         check = @CheckConstraint(
-                name = "3 column must indicate on this players",
+                name = "notnull",
                 constraint = "winner = player_1 OR winner = player_2 OR winner IS NULL"))
 public class Match {
 
