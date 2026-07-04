@@ -45,7 +45,6 @@ public class MatchesController {
     @GetMapping("/{uuid}")
     public ResponseEntity<String> getScore(@PathVariable(name = "uuid") String uuid) {
         ScoreResponseDto scoreResponseDto = service.findMatch(uuid);
-        //
         return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(gson.toJson(scoreResponseDto));
     }
 

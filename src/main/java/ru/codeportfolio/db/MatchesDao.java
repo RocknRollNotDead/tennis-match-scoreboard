@@ -42,19 +42,17 @@ public class MatchesDao implements MatchesDaoInterface {
     }
 
 
-    public List<Match> find(Player player) {
+    public List<Match> find(String playerName) {
         try (Session session = sessionFactory.openSession()) {
             session.beginTransaction();
 
-            List<Match> matches = session.createQuery("from Match where homePlayer = :player " +
-                            "or guestPlayer = :player", Match.class)
-                    .setParameter("player", player)
+            List<Match> matches = session.createQuery("from Match where homePlayer.name like :player " +
+                            "or guestPlayer.name like :player", Match.class)
+                    .setParameter("player", "%" + playerName + "%")
                     .list();
 
             session.getTransaction().commit();
             return matches;
-        }  catch (NonUniqueResultException e) {
-            throw new CannotFindNessesaryEntity(e);
         } catch (RuntimeException e) {
             throw new DataAccessException("Database Error", e);
         }
@@ -111,7 +109,7 @@ public class MatchesDao implements MatchesDaoInterface {
             Match match = session.createQuery("from Match where homePlayer = :homePlayer " +
                             "and guestPlayer = :guestPlayer", Match.class)
                     .setParameter("homePlayer", homePlayer)
-                    .setParameter("guestPlayer", guestPlayer).uniqueResult();
+                    .setParameter("guestPlayer", guestPlayer).setMaxResults(1).uniqueResult();
             if (match != null) {
                 session.remove(match);
                 result = true;

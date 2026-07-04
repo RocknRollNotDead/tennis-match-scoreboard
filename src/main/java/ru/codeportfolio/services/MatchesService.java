@@ -5,6 +5,7 @@ import ru.codeportfolio.DTO.*;
 import ru.codeportfolio.db.MatchesDao;
 import ru.codeportfolio.db.PlayersDao;
 import ru.codeportfolio.exceptions.AlreadyExistException;
+import ru.codeportfolio.exceptions.CannotFindNessesaryEntity;
 import ru.codeportfolio.exceptions.NotFoundException;
 import ru.codeportfolio.models.entities.Match;
 import ru.codeportfolio.models.entities.Player;
@@ -82,16 +83,17 @@ public class MatchesService {
 
         List<Match> matches;
 
-// вынести
-        String playerNameForExceptionMessage = playerName;
+        // todo вынести
         if (playerName == null || playerName.isBlank()) {
             matches = matchesDao.getAll();
         } else {
             playerName = PlayerValidateUtil.normalizeRequest(playerName);
 
-            Player player = playersDao.findByName(playerName).orElseThrow(() ->
-                    new NotFoundException("not find player " + playerNameForExceptionMessage));
-            matches = matchesDao.find(player);
+//            Player player = playersDao.findByName(playerName).orElseThrow(() ->
+//                    new NotFoundException("not find player " + playerNameForExceptionMessage));
+
+            matches = matchesDao.find(playerName);
+
         }
 
 

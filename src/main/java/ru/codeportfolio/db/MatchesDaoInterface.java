@@ -10,7 +10,7 @@ public interface MatchesDaoInterface {
 
     Match save(Match match);
 
-    List<Match> find(Player player);
+    List<Match> find(String player);
     List<Match> getAll();
 
     Optional<Match> update(Player homePlayer, Player guestPlayer, Player winner);

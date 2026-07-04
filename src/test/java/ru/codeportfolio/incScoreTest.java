@@ -7,6 +7,7 @@ import org.hibernate.boot.Metadata;
 import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,9 +38,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 тайбрейк - 7 очков добавляют сет
 2 выигранных сета заканчивают игру
 и попадаюет в таблицу
-
-
-
  */
 public class incScoreTest {
 
@@ -48,10 +46,17 @@ public class incScoreTest {
     public static final String PLAYER_1 = "aaaaTest";
     public static final String PLAYER_2 = "bbbbTest";
 
+    PlayersDao playersDao = new PlayersDao(sessionFactory(dataSource()));
+    MatchesDao matchesDao = new MatchesDao(sessionFactory(dataSource()));
+
+
+    MatchesService service  = new MatchesService(matchesDao, playersDao);
+
+    UUID uuid;
     public DataSource dataSource() {
         HikariConfig config = new HikariConfig();
-        config.setJdbcUrl("jdbc:postgresql://localhost:5432/tennis_scoreboard");
-        config.setUsername("postgres");
+        config.setJdbcUrl("jdbc:postgresql://" + Config.URL);
+        config.setUsername(Config.getLogin());
         config.setPassword(Config.getPassword());
         config.setDriverClassName("org.postgresql.Driver");
 
@@ -82,14 +87,43 @@ public class incScoreTest {
         return metadata.getSessionFactoryBuilder().build();
     }
 
+    public static DataSource getStaticDataSource() {
+        HikariConfig config = new HikariConfig();
+        config.setJdbcUrl("jdbc:postgresql://" + Config.URL);
+        config.setUsername(Config.getLogin());
+        config.setPassword(Config.getPassword());
+        config.setDriverClassName("org.postgresql.Driver");
 
-    PlayersDao playersDao = new PlayersDao(sessionFactory(dataSource()));
-    MatchesDao matchesDao = new MatchesDao(sessionFactory(dataSource()));
+        config.setMaximumPoolSize(10);
+        config.setMinimumIdle(2);
+        config.setIdleTimeout(30000);
+        config.setConnectionTimeout(30000);
+
+        return new HikariDataSource(config);
+    }
+
+    public static SessionFactory getStaticSessionFactory(DataSource dataSource) {
+        Map<String, Object> settings = new HashMap<>();
+
+        settings.put("hibernate.connection.datasource", dataSource);
+        settings.put("hibernate.show_sql", true);
+        settings.put("hibernate.hbm2ddl.auto", "update");
+
+        StandardServiceRegistry registry = new StandardServiceRegistryBuilder()
+                .applySettings(settings)
+                .build();
+
+        MetadataSources sources = new MetadataSources(registry);
+        sources.addAnnotatedClass(Match.class);
+        sources.addAnnotatedClass(Player.class);
+
+        Metadata metadata = sources.getMetadataBuilder().build();
+        return metadata.getSessionFactoryBuilder().build();
+    }
 
 
-    MatchesService service  = new MatchesService(matchesDao, playersDao);
 
-    UUID uuid;
+
 
 // тестируем не контроллер, а сервис, потому что контроллер отдаёт ResponseBody
     @BeforeEach
@@ -222,6 +256,12 @@ public class incScoreTest {
     }
 
 
+    @AfterAll
+    public static void cleanDb(){
+
+        MatchesDao matchesDao = new MatchesDao(getStaticSessionFactory(getStaticDataSource()));
+        matchesDao.delete(new Player(PLAYER_1), new Player(PLAYER_2));
+    }
 
 
 

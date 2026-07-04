@@ -28,8 +28,8 @@ public class MatchesRootConfig {
     @Bean
     public DataSource dataSource() {
         HikariConfig config = new HikariConfig();
-        config.setJdbcUrl("jdbc:postgresql://localhost:5432/tennis_scoreboard");
-        config.setUsername("postgres");
+        config.setJdbcUrl("jdbc:postgresql://" + Config.URL);
+        config.setUsername(Config.getLogin());
         config.setPassword(Config.getPassword());
         config.setDriverClassName("org.postgresql.Driver");
 
