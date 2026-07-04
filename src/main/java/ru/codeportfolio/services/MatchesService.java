@@ -30,7 +30,7 @@ public class MatchesService {
 
     public UUID createMatch(String firstPlayerName, String secondPlayerName) {
         if (firstPlayerName.equals(secondPlayerName)){
-            throw new AlreadyExistException("нou can't play with yourself!");
+            throw new AlreadyExistException("you can't play with yourself!");
         }
         Score score = createScore(firstPlayerName, secondPlayerName);
         UUID uuid = generateUUID();
@@ -82,7 +82,7 @@ public class MatchesService {
 
         List<Match> matches;
 
-
+// вынести
         String playerNameForExceptionMessage = playerName;
         if (playerName == null || playerName.isBlank()) {
             matches = matchesDao.getAll();
@@ -114,6 +114,8 @@ public class MatchesService {
         MatchesResponseDto matchesResponseDto = new MatchesResponseDto(matchesDto, page, totalPages);
         return matchesResponseDto;
     }
+
+
 
 
     private Integer calculateTotalPages(List<Match> matches) {

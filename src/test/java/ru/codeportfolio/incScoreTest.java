@@ -7,10 +7,11 @@ import org.hibernate.boot.Metadata;
 import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import ru.codeportfolio.DTO.OneMatchDto;
 import ru.codeportfolio.DTO.requestDto.CreateMatchRequestDto;
 import ru.codeportfolio.controllers.MatchesController;
 import ru.codeportfolio.db.MatchesDao;
@@ -24,6 +25,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 /*
 добавление очка
 два AD - сброс в 40
@@ -32,7 +36,7 @@ import java.util.UUID;
 6-6 - тайбрейк
 тайбрейк - 7 очков добавляют сет
 2 выигранных сета заканчивают игру
-законченная игра попадает в таблицу
+и попадаюет в таблицу
 
 
 
@@ -40,6 +44,9 @@ import java.util.UUID;
 public class incScoreTest {
 
     MatchesController controller  = new MatchesController();
+
+    public static final String PLAYER_1 = "aaaaTest";
+    public static final String PLAYER_2 = "bbbbTest";
 
     public DataSource dataSource() {
         HikariConfig config = new HikariConfig();
@@ -85,39 +92,155 @@ public class incScoreTest {
     UUID uuid;
 
 // тестируем не контроллер, а сервис, потому что контроллер отдаёт ResponseBody
+    @BeforeEach
     public void addMatch(){
-        CreateMatchRequestDto dto = new CreateMatchRequestDto("AAA", "bbbb");
-        uuid = service.createMatch("РазПроверка", "ДваПроверка");
+        uuid = service.createMatch(PLAYER_1, PLAYER_2);
     }
 
     @Test
     public void incScore(){
-        service.incPoint(uuid.toString(), "Разпроверка");
+        service.incPoint(uuid.toString(), PLAYER_1);
+        String result = service.findMatch(uuid.toString()).firstPlayer().points();
+        assertEquals("15", result);
     }
-
+    @Test
     public void incScoreTo40(){
+        inc40ToAll();
+        service.incPoint(uuid.toString(), PLAYER_1);
 
+        String result = service.findMatch(uuid.toString()).firstPlayer().points();
+        assertEquals("AD", result);
     }
 
+    @Test
     public void incScoreToAD(){
+        inc40ToAll();
+        service.incPoint(uuid.toString(), PLAYER_1);
+        service.incPoint(uuid.toString(), PLAYER_1);
+
+        int result = service.findMatch(uuid.toString()).firstPlayer().games();
+        assertEquals(1, result);
+    }
+
+    @Test
+    public void incADTo40(){
+        inc40ToAll();
+        service.incPoint(uuid.toString(), PLAYER_1);
+        service.incPoint(uuid.toString(), PLAYER_2);
+
+        String result = service.findMatch(uuid.toString()).firstPlayer().points();
+        assertEquals("40", result);
 
     }
 
+    @Test
     public void incGame(){
+        service.incPoint(uuid.toString(), PLAYER_1);
+        service.incPoint(uuid.toString(), PLAYER_1);
+        service.incPoint(uuid.toString(), PLAYER_1);
+        service.incPoint(uuid.toString(), PLAYER_1);
 
+        int result = service.findMatch(uuid.toString()).firstPlayer().games();
+        assertEquals(1, result);
     }
 
+    @Test
     public void incSetFrom6games(){
+        inc1Game(PLAYER_1);
+        inc1Game(PLAYER_1);
+        inc1Game(PLAYER_1);
+        inc1Game(PLAYER_1);
+        inc1Game(PLAYER_1);
+        inc1Game(PLAYER_1);
 
+        int result = service.findMatch(uuid.toString()).firstPlayer().sets();
+        assertEquals(1, result);
     }
+
+    @Test
     public void incSetFrom7games(){
+        inc1Game(PLAYER_1);
+        inc1Game(PLAYER_1);
+        inc1Game(PLAYER_1);
+        inc1Game(PLAYER_1);
+        inc1Game(PLAYER_1);
 
+        inc1Game(PLAYER_2);
+        inc1Game(PLAYER_2);
+        inc1Game(PLAYER_2);
+        inc1Game(PLAYER_2);
+        inc1Game(PLAYER_2);
+
+        inc1Game(PLAYER_1);
+        inc1Game(PLAYER_1);
+
+        int result = service.findMatch(uuid.toString()).firstPlayer().sets();
+        assertEquals(1, result);
     }
 
-
+    @Test
     public void getTieBreak(){
+        inc1Game(PLAYER_1);
+        inc1Game(PLAYER_1);
+        inc1Game(PLAYER_1);
+        inc1Game(PLAYER_1);
+        inc1Game(PLAYER_1);
+
+        inc1Game(PLAYER_2);
+        inc1Game(PLAYER_2);
+        inc1Game(PLAYER_2);
+        inc1Game(PLAYER_2);
+        inc1Game(PLAYER_2);
+
+        inc1Game(PLAYER_1);
+        inc1Game(PLAYER_2);
+
+        Integer result = service.findMatch(uuid.toString()).firstPlayer().tieBreakPoints();
+        assertEquals(0, result);
 
     }
 
+    @Test
+    public void getGameFromTable(){
+        inc1Game(PLAYER_1);
+        inc1Game(PLAYER_1);
+        inc1Game(PLAYER_1);
+        inc1Game(PLAYER_1);
+        inc1Game(PLAYER_1);
+        inc1Game(PLAYER_1);
+
+        inc1Game(PLAYER_1);
+        inc1Game(PLAYER_1);
+        inc1Game(PLAYER_1);
+        inc1Game(PLAYER_1);
+        inc1Game(PLAYER_1);
+        inc1Game(PLAYER_1);
+
+        boolean result = service.getAllMatches(1, PLAYER_1).matches()
+                .contains(new OneMatchDto(PLAYER_1, PLAYER_2, PLAYER_1));
+        assertTrue(result);
+    }
+
+
+
+
+
+
+
+    private void inc40ToAll(){
+        service.incPoint(uuid.toString(), PLAYER_1);
+        service.incPoint(uuid.toString(), PLAYER_1);
+        service.incPoint(uuid.toString(), PLAYER_1);
+        service.incPoint(uuid.toString(), PLAYER_2);
+        service.incPoint(uuid.toString(), PLAYER_2);
+        service.incPoint(uuid.toString(), PLAYER_2);
+    }
+
+    private void inc1Game(String player){
+        service.incPoint(uuid.toString(), player);
+        service.incPoint(uuid.toString(), player);
+        service.incPoint(uuid.toString(), player);
+        service.incPoint(uuid.toString(), player);
+    }
 
 }
