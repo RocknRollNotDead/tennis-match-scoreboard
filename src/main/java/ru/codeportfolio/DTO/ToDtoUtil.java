@@ -1,6 +1,6 @@
 package ru.codeportfolio.DTO;
 
-import ru.codeportfolio.models.Score;
+import ru.codeportfolio.models.score.Score;
 import ru.codeportfolio.models.entities.Match;
 
 import java.util.List;
@@ -14,6 +14,7 @@ public class ToDtoUtil {
                         match.getWinner().getName())).toList();
     }
 
+    // это формат ответа по тз
     public static ScoreResponseDto2legacy toResponseDtoFromScore2legacy(Score score){
 
 
@@ -26,13 +27,13 @@ public class ToDtoUtil {
             tieBreakGuestPlayerPoints = score.getTieBreak().getGuestPlayerPoints();
         }
 
-        if (score.getWinner() != null){
-            winnerName = score.getWinner().getName();
+        if (score.getWinnerName() != null){
+            winnerName = score.getWinnerName();
         }
 
         ScoreResponseDto2legacy scoreResponseDto = new ScoreResponseDto2legacy(
-                score.getHomePlayer().getName(),
-                score.getGuestPlayer().getName(),
+                score.getHomePlayerName(),
+                score.getGuestPlayerName(),
                 score.getGame().getHomePlayerPoints().getCode(),
                 score.getGame().getGuestPlayerPoints().getCode(),
                 score.getSet().getHomePlayerGames(),
@@ -46,6 +47,7 @@ public class ToDtoUtil {
         return scoreResponseDto;
     }
 
+    // это формат ответа по запросу app.js
     public static ScoreResponseDto toResponseDtoFromScore(Score score){
 
         String homePlayerPoints = null;
@@ -64,19 +66,19 @@ public class ToDtoUtil {
             tieBreakGuestPlayerPoints = score.getTieBreak().getGuestPlayerPoints();
         }
 
-        if (score.getWinner() != null){
-            winnerName = score.getWinner().getName();
+        if (score.getWinnerName() != null){
+            winnerName = score.getWinnerName();
         }
 
         PlayerDto firstPlayer = new PlayerDto(
-                score.getHomePlayer().getName(),
+                score.getHomePlayerName(),
                 homePlayerPoints,
                 score.getSet().getHomePlayerGames(),
                 score.getGeneralScoreHomePlayer(),
                 tieBreakHomePlayerPoints
                 );
         PlayerDto secondPlayer = new PlayerDto(
-                score.getGuestPlayer().getName(),
+                score.getGuestPlayerName(),
                 guestPlayerPoints,
                 score.getSet().getGuestPlayerGames(),
                 score.getGeneralScoreGuestPlayer(),

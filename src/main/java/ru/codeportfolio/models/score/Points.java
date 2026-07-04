@@ -1,4 +1,4 @@
-package ru.codeportfolio.models;
+package ru.codeportfolio.models.score;
 
 public class Points {
 

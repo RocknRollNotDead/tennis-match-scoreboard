@@ -1,6 +1,4 @@
-package ru.codeportfolio.models;
-
-import ru.codeportfolio.models.entities.Player;
+package ru.codeportfolio.models.score;
 
 public class TieBreak {
 

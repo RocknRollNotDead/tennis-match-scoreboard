@@ -1,14 +1,12 @@
-package ru.codeportfolio.models;
-
-import ru.codeportfolio.models.entities.Player;
+package ru.codeportfolio.models.score;
 
 public class Score {
-    private final Player homePlayer;
-    private final Player guestPlayer;
+    private final String homePlayer;
+    private final String guestPlayer;
     private Game game;
     private Set set;
     private TieBreak tieBreak;
-    private Player winner;
+    private String winner;
     private int generalScoreHomePlayer = 0;
     private int generalScoreGuestPlayer = 0;
 
@@ -19,7 +17,7 @@ public class Score {
     // Поэтому единственный вариант - прописывать это в классах.
 
 
-    public Score(Player homePlayer, Player guestPlayer) {
+    public Score(String homePlayer, String guestPlayer) {
         this.homePlayer = homePlayer;
         this.guestPlayer = guestPlayer;
         game = new Game();
@@ -168,11 +166,11 @@ public class Score {
 
     // getters
 
-    public Player getGuestPlayer() {
+    public String getGuestPlayerName() {
         return guestPlayer;
     }
 
-    public Player getHomePlayer() {
+    public String getHomePlayerName() {
         return homePlayer;
     }
 
@@ -188,7 +186,7 @@ public class Score {
         return tieBreak;
     }
 
-    public Player getWinner() {
+    public String getWinnerName() {
         return winner;
     }
 

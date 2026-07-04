@@ -5,11 +5,10 @@ import ru.codeportfolio.DTO.*;
 import ru.codeportfolio.db.MatchesDao;
 import ru.codeportfolio.db.PlayersDao;
 import ru.codeportfolio.exceptions.AlreadyExistException;
-import ru.codeportfolio.exceptions.CannotFindNessesaryEntity;
 import ru.codeportfolio.exceptions.NotFoundException;
 import ru.codeportfolio.models.entities.Match;
 import ru.codeportfolio.models.entities.Player;
-import ru.codeportfolio.models.Score;
+import ru.codeportfolio.models.score.Score;
 import ru.codeportfolio.validators.PlayerValidateUtil;
 
 import java.util.*;
@@ -43,20 +42,20 @@ public class MatchesService {
 
         UUID id = UUID.fromString(uuid);
         Score score = scores.get(id);
-        if (score.getHomePlayer().getName().equalsIgnoreCase(playerName)) {
+        if (score.getHomePlayerName().equalsIgnoreCase(playerName)) {
             score.incHomePlayerPoint();
-        } else if (score.getGuestPlayer().getName().equalsIgnoreCase(playerName)) {
+        } else if (score.getGuestPlayerName().equalsIgnoreCase(playerName)) {
             score.incGuestPlayerPoint();
         } else {
             throw new NotFoundException("not find player " + playerName);
         }
 
-        if (score.getWinner() != null){
+        if (score.getWinnerName() != null){
             matchesDao.save(
                     new Match(
-                            score.getHomePlayer(),
-                            score.getGuestPlayer(),
-                            score.getWinner()
+                            new Player(score.getHomePlayerName()),
+                            new Player(score.getGuestPlayerName()),
+                            new Player(score.getWinnerName())
                     ));
         }
 
@@ -91,11 +90,10 @@ public class MatchesService {
 
 //            Player player = playersDao.findByName(playerName).orElseThrow(() ->
 //                    new NotFoundException("not find player " + playerNameForExceptionMessage));
-
             matches = matchesDao.find(playerName);
 
         }
-
+        matches.sort(Comparator.comparing(match -> match.getHomePlayer().getName()));
 
         Integer totalPages = calculateTotalPages(matches);
 
@@ -149,7 +147,7 @@ public class MatchesService {
         Player guestPlayer = playersDao.findByName(secondPlayerName).orElseGet(
                 () -> playersDao.save(new Player(secondPlayerName)));
 
-        return new Score(homePlayer, guestPlayer);
+        return new Score(homePlayer.getName(), guestPlayer.getName());
     }
 
     private UUID generateUUID() {
