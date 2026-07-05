@@ -6,6 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import ru.codeportfolio.DTO.MatchesResponseDto;
 import ru.codeportfolio.db.MatchesDao;
 import ru.codeportfolio.db.PlayersDao;
 import ru.codeportfolio.models.entities.Match;
@@ -168,6 +169,16 @@ public class IncScoreTest {
         );
     }
 
+    @Test
+    public void checkGetPageNull(){
+        when(matchesDao.getAll()).thenReturn(new ArrayList<>());
+
+        MatchesResponseDto result = service.getAllMatches(null, "");
+        assertEquals(new MatchesResponseDto(
+                new ArrayList<>(), 1, null
+        ), result);
+
+    }
 
 
 

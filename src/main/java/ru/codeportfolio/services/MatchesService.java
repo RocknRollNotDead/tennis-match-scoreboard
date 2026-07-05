@@ -117,10 +117,11 @@ public class MatchesService {
 
     private Integer normalizePage(Integer page) {
 
-        if (page >= 1) {
-            page = page - 1;
-        } else {
+        if (page == null){
             page = 0;
+        }
+        else {
+            page = page - 1;
         }
         return page;
 
