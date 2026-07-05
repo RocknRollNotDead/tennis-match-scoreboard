@@ -46,8 +46,13 @@ public class MatchesService {
     }
 
     public ScoreResponseDto incPoint(String uuid, String playerName) {
+        UUID id;
+        try {
+            id = UUID.fromString(uuid);
+        } catch (RuntimeException e) {
+            throw new ValidationException("Uncorrect uuid in request", e);
+        }
 
-        UUID id = UUID.fromString(uuid);
 
         Score score = scores.get(id);
         if (score == null) {
@@ -70,8 +75,12 @@ public class MatchesService {
 
 
     public ScoreResponseDto findMatch(String uuid) {
-
-        UUID id = UUID.fromString(uuid);
+        UUID id;
+        try {
+            id = UUID.fromString(uuid);
+        } catch (RuntimeException e) {
+            throw new ValidationException("Uncorrect uuid in request", e);
+        }
         Score score;
         try {
             score = scores.get(id);
@@ -88,20 +97,29 @@ public class MatchesService {
 
         List<Match> matches;
 
-        matches = getMatchesFromDao(playerName);
+        int offset = calculateOffset(page);
+        matches = getMatchesFromDao(playerName, offset, offset + SIZE_PAGE);
 
-        Integer totalPages = calculateTotalPages(matches);
-
-        page = normalizePage(page);
-        matches = getMatchesPage(matches, page);
-        page = page + 1;
-
+        long totalPages = calculateTotalPages(playerName);
 
         List<OneMatchDto> matchesDto = ToDtoUtil.toMatchDtoList(matches);
 
+        if (page == null) {
+            page = 0;
+        }
+        page++;
 
         MatchesResponseDto matchesResponseDto = new MatchesResponseDto(matchesDto, page, totalPages);
         return matchesResponseDto;
+    }
+
+    private int calculateOffset(Integer page) {
+        if (page == null) {
+            return 0;
+        } else if (page <= 0) {
+            return 0;
+        }
+        return (page - 1) * (SIZE_PAGE);
     }
 
 
@@ -117,38 +135,26 @@ public class MatchesService {
                 ));
     }
 
-    private @NonNull List<Match> getMatchesFromDao(String playerName) {
+    private @NonNull List<Match> getMatchesFromDao(String playerName, int offset, int limit) {
         List<Match> matches;
         if (playerName == null || playerName.isBlank()) {
-            matches = matchesDao.getAll();
+            matches = matchesDao.getAll(offset, limit);
         } else {
             playerName = PlayerValidateUtil.normalizeRequest(playerName);
-            matches = matchesDao.find(playerName);
-
+            matches = matchesDao.find(playerName, offset, limit);
         }
-        matches.sort(Comparator.comparing(match -> match.getHomePlayer().getName()));
         return matches;
     }
 
-    private Integer normalizePage(Integer page) {
-
-        if (page == null) {
-            page = 0;
+    private long calculateTotalPages(String playerName) {
+        long matches;
+        if (playerName == null || playerName.isBlank()){
+            matches = matchesDao.countMatches();
         } else {
-            page = page - 1;
-        }
-        return page;
-
-    }
-
-    private Integer calculateTotalPages(List<Match> matches) {
-        Integer result;
-        result = Math.ceilDiv(matches.size(), SIZE_PAGE);
-        if (result == 0) {
-            result = null;
+            matches = matchesDao.countMatches(playerName);
         }
 
-        return result;
+        return Math.ceilDiv(matches, SIZE_PAGE);
     }
 
     private List<Match> getMatchesPage(List<Match> matches, Integer page) {

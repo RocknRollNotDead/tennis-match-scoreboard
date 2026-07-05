@@ -9,6 +9,9 @@ public class PlayerValidateUtil {
         if (playerName == null || playerName.isBlank()){
             throw new ValidationException("request is empty");
         }
+        if (playerName.length() > 100){
+            throw new ValidationException("name must be less 100 symbols");
+        }
 
         return playerName.trim();
     }

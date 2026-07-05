@@ -28,7 +28,7 @@ import static org.mockito.Mockito.when;
 6-6 - тайбрейк
 тайбрейк - 7 очков добавляют сет
 2 выигранных сета заканчивают игру
-и попадаюет в таблицу
+и попадают в таблицу
  */
 
 @ExtendWith(MockitoExtension.class)
@@ -171,11 +171,11 @@ public class IncScoreTest {
 
     @Test
     public void checkGetPageNull(){
-        when(matchesDao.getAll()).thenReturn(new ArrayList<>());
+        when(matchesDao.getAll(0, 5)).thenReturn(new ArrayList<>());
 
         MatchesResponseDto result = service.getAllMatches(null, "");
         assertEquals(new MatchesResponseDto(
-                new ArrayList<>(), 1, null
+                new ArrayList<>(), 1, 1
         ), result);
 
     }

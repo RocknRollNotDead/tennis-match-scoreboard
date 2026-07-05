@@ -20,10 +20,14 @@ import java.util.UUID;
 @RequestMapping("/matches")
 public class MatchesController {
     @Autowired
-    MatchesService service;
+    private final MatchesService service;
 
-    @Autowired
-    Gson gson;
+    private final Gson gson;
+
+    public MatchesController(MatchesService service, Gson gson) {
+        this.service = service;
+        this.gson = gson;
+    }
 
     @PostMapping()
     public ResponseEntity<Map<String, String>> createMatch(@RequestBody CreateMatchRequestDto dto) {
@@ -38,8 +42,9 @@ public class MatchesController {
                                                      @RequestBody GetMatchRequestDto dto) {
 
         String playerName = dto.getName();
-        return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(gson.toJson(service.incPoint(uuid, playerName)));
-
+        return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON)
+                .body(gson.toJson(
+                        service.incPoint(uuid, playerName)));
     }
 
     @GetMapping("/{uuid}")

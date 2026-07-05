@@ -10,6 +10,9 @@ public class MatchesDao implements MatchesDaoInterface {
 
     private final TransactionManager manager;
 
+    private static final String SEARCH_FOR_NAME = " where homePlayer.name like :player " +
+            "or guestPlayer.name like :player ";
+
     public MatchesDao(TransactionManager manager) {
         this.manager = manager;
     }
@@ -25,13 +28,16 @@ public class MatchesDao implements MatchesDaoInterface {
 
     }
 
-    public List<Match> find(String playerName) {
+    @Override
+    public List<Match> find(String name, int offset, int limit) {
 
         return manager.executeInTransaction(session ->
                 {
-                    return session.createQuery("from Match where homePlayer.name like :player " +
-                                    "or guestPlayer.name like :player", Match.class)
-                            .setParameter("player", "%" + playerName + "%")
+                    return session.createQuery("from Match" + SEARCH_FOR_NAME +
+                                    "order by homePlayer.name", Match.class)
+                            .setParameter("player", "%" + name + "%")
+                            .setFirstResult(offset)
+                            .setMaxResults(limit)
                             .list();
                 }
         );
@@ -39,12 +45,31 @@ public class MatchesDao implements MatchesDaoInterface {
     }
 
     @Override
-    public List<Match> getAll() {
+    public List<Match> getAll(int offset, int limit) {
         return manager.executeInTransaction(session ->
                 {
-                    return session.createQuery("from Match ", Match.class).list();
+                    return session.createQuery("from Match order by homePlayer.name", Match.class)
+                            .setFirstResult(offset)
+                            .setMaxResults(limit)
+                            .list();
                 }
         );
 
     }
+
+    public long countMatches() {
+        return manager.executeInTransaction(session ->
+                session.createQuery("select count(m) from Match m", Long.class)
+                        .uniqueResult()
+        );
+    }
+
+    public long countMatches(String name) {
+        return manager.executeInTransaction(session ->
+                session.createQuery("select count(m) from Match m" + SEARCH_FOR_NAME, Long.class)
+                        .setParameter("player", "%" + name + "%")
+                        .uniqueResult()
+        );
+    }
+
 }

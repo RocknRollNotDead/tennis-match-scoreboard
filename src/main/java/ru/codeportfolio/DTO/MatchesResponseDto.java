@@ -4,7 +4,7 @@ import java.util.List;
 
 public record MatchesResponseDto(
     List<OneMatchDto> matches,
-    Integer currentPage,
-    Integer totalPages)
+    long currentPage,
+    long totalPages)
 {
 }

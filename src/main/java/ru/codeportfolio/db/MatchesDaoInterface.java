@@ -1,16 +1,16 @@
 package ru.codeportfolio.db;
 
 import ru.codeportfolio.models.entities.Match;
-import ru.codeportfolio.models.entities.Player;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface MatchesDaoInterface {
 
     Match save(Match match);
 
-    List<Match> find(String player);
-    List<Match> getAll();
+    List<Match> find(String player, int offset, int limit);
+    List<Match> getAll(int offset, int limit);
+    long countMatches();
+    long countMatches(String name);
 
 }

@@ -25,16 +25,16 @@ public class ToDtoUtil {
 
         Integer tieBreakHomePlayerPoints = null;
         Integer tieBreakGuestPlayerPoints = null;
-        String winnerName = null;
+
 
         if(score.getTieBreak() != null){
             tieBreakHomePlayerPoints = score.getTieBreak().getHomePlayerPoints();
             tieBreakGuestPlayerPoints = score.getTieBreak().getGuestPlayerPoints();
         }
 
-        if (score.getWinnerName() != null){
-            winnerName = score.getWinnerName();
-        }
+
+        String winnerName = score.getWinnerName();
+
 
         ScoreResponseDto2legacy scoreResponseDto = new ScoreResponseDto2legacy(
                 score.getHomePlayerName(),
@@ -64,16 +64,14 @@ public class ToDtoUtil {
 
         Integer tieBreakHomePlayerPoints = null;
         Integer tieBreakGuestPlayerPoints = null;
-        String winnerName = null;
+
 
         if(score.getTieBreak() != null){
             tieBreakHomePlayerPoints = score.getTieBreak().getHomePlayerPoints();
             tieBreakGuestPlayerPoints = score.getTieBreak().getGuestPlayerPoints();
         }
 
-        if (score.getWinnerName() != null){
-            winnerName = score.getWinnerName();
-        }
+        String winnerName = score.getWinnerName();
 
         PlayerDto firstPlayer = new PlayerDto(
                 score.getHomePlayerName(),
