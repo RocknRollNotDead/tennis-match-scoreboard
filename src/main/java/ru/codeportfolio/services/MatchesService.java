@@ -105,9 +105,8 @@ public class MatchesService {
         List<OneMatchDto> matchesDto = ToDtoUtil.toMatchDtoList(matches);
 
         if (page == null) {
-            page = 0;
+            page = 1;
         }
-        page++;
 
         MatchesResponseDto matchesResponseDto = new MatchesResponseDto(matchesDto, page, totalPages);
         return matchesResponseDto;
