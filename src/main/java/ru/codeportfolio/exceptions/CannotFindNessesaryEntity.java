@@ -3,8 +3,6 @@ package ru.codeportfolio.exceptions;
 import org.hibernate.NonUniqueResultException;
 
 public class CannotFindNessesaryEntity extends RuntimeException {
-    public CannotFindNessesaryEntity() {
-    }
 
     public CannotFindNessesaryEntity(String message) {
         super(message);
@@ -16,8 +14,5 @@ public class CannotFindNessesaryEntity extends RuntimeException {
 
     public CannotFindNessesaryEntity(Throwable cause) {
         super(cause);
-    }
-
-    public CannotFindNessesaryEntity(RuntimeException e) {
     }
 }

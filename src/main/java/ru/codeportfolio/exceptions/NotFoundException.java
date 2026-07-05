@@ -9,9 +9,6 @@ public class NotFoundException extends RuntimeException{
         super(message, cause);
     }
 
-    public NotFoundException() {
-    }
-
     public NotFoundException(Throwable cause) {
         super(cause);
     }

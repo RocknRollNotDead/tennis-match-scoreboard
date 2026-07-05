@@ -1,9 +1,5 @@
 package ru.codeportfolio.db;
 
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import ru.codeportfolio.models.entities.Player;
 
@@ -14,8 +10,6 @@ import java.util.Optional;
 public class PlayersDao implements PlayersDaoInterface {
 
     private final TransactionManager manager;
-
-    private static final Logger log = LoggerFactory.getLogger(PlayersDao.class);
 
     public PlayersDao(TransactionManager manager) {
         this.manager = manager;
