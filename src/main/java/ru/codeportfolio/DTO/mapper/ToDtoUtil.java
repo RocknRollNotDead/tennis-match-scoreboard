@@ -1,5 +1,9 @@
-package ru.codeportfolio.DTO;
+package ru.codeportfolio.DTO.mapper;
 
+import ru.codeportfolio.DTO.OneMatchDto;
+import ru.codeportfolio.DTO.PlayerDto;
+import ru.codeportfolio.DTO.ScoreResponseDto;
+import ru.codeportfolio.DTO.ScoreResponseDto2legacy;
 import ru.codeportfolio.models.score.Score;
 import ru.codeportfolio.models.entities.Match;
 

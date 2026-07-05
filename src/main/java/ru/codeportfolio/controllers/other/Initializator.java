@@ -18,7 +18,7 @@ public class Initializator implements WebApplicationInitializer {
         rootContext.register(MatchesRootConfig.class);
 
         AnnotationConfigWebApplicationContext controllerContext = new AnnotationConfigWebApplicationContext();
-        controllerContext.register(SpringMVCConfig.class);
+        controllerContext.register(ControllerConfig.class);
         controllerContext.setParent(rootContext);
 
         servletContext.addListener(new ContextLoaderListener(rootContext));

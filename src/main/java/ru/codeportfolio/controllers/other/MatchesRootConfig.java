@@ -29,7 +29,7 @@ public class MatchesRootConfig {
     public DataSource dataSource() {
         HikariConfig config = new HikariConfig();
         config.setJdbcUrl("jdbc:postgresql://" + Config.URL);
-        config.setUsername(Config.getLogin());
+        config.setUsername(Config.getLogin()); // "postgres" - default
         config.setPassword(Config.getPassword());
         config.setDriverClassName("org.postgresql.Driver");
 
