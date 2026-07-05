@@ -66,7 +66,8 @@ public class MatchesDao implements MatchesDaoInterface {
 
     public long countMatches(String name) {
         return manager.executeInTransaction(session ->
-                session.createQuery("select count(m) from Match m" + SEARCH_FOR_NAME, Long.class)
+                session.createQuery("select count(m) from Match m where m.homePlayer.name like :player " +
+                                "or m.guestPlayer.name like :player", Long.class)
                         .setParameter("player", "%" + name + "%")
                         .uniqueResult()
         );
