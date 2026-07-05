@@ -172,10 +172,11 @@ public class IncScoreTest {
     @Test
     public void checkGetPageNull(){
         when(matchesDao.getAll(0, 5)).thenReturn(new ArrayList<>());
+        when(matchesDao.countMatches()).thenReturn(0L);
 
         MatchesResponseDto result = service.getAllMatches(null, "");
         assertEquals(new MatchesResponseDto(
-                new ArrayList<>(), 1, 1
+                new ArrayList<>(), 1, 0
         ), result);
 
     }
