@@ -51,7 +51,7 @@ public class MatchesController {
 
     @GetMapping()
     public ResponseEntity<MatchesResponseDto> getMatches(
-            @RequestParam(name = "page") Integer page,
+            @RequestParam(name = "page", required = false) Integer page,
             @RequestParam(name = "player_name", required = false) String playerName) {
         MatchesResponseDto matches = service.getAllMatches(page, playerName);
         return ResponseEntity.ok(matches);

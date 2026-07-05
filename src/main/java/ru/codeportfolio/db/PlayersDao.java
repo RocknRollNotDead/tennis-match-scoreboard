@@ -1,18 +1,10 @@
 package ru.codeportfolio.db;
 
 
-import org.hibernate.NonUniqueResultException;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.exception.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-import ru.codeportfolio.controllers.other.MatchesExceptionHandler;
-import ru.codeportfolio.exceptions.AlreadyExistException;
-import ru.codeportfolio.exceptions.CannotFindNessesaryEntity;
-import ru.codeportfolio.exceptions.DataAccessException;
 import ru.codeportfolio.models.entities.Player;
 
 import java.util.List;
@@ -21,9 +13,7 @@ import java.util.Optional;
 @Repository
 public class PlayersDao implements PlayersDaoInterface {
 
-    @Autowired
     private final TransactionManager manager;
-
 
     private static final Logger log = LoggerFactory.getLogger(PlayersDao.class);
 
@@ -59,23 +49,6 @@ public class PlayersDao implements PlayersDaoInterface {
             return session.createQuery("from Player", Player.class).list();
         });
 
-    }
-
-
-    @Override
-    public boolean delete(String name) {
-
-        return manager.executeInTransaction(session ->
-        {
-            boolean result = false;
-            Player player = session.createQuery("from Player where name = :name", Player.class)
-                    .setParameter("name", name).uniqueResult();
-            if (player != null) {
-                session.remove(player);
-                result = true;
-            }
-            return result;
-        });
     }
 }
 

@@ -1,7 +1,6 @@
 package ru.codeportfolio.models.score;
 
 import ru.codeportfolio.exceptions.NotFoundException;
-import ru.codeportfolio.models.entities.Player;
 
 public class Score {
     private final String homePlayer;
@@ -37,7 +36,7 @@ public class Score {
         }
     }
 
-    public void incHomePlayerPoint() {
+    private void incHomePlayerPoint() {
 
         if (tieBreak != null) {
             incHomeInPlayTieBreak();
@@ -49,7 +48,7 @@ public class Score {
         }
     }
 
-    public void incGuestPlayerPoint() {
+    private void incGuestPlayerPoint() {
 
         if (tieBreak != null) {
             incGuestInPlayTieBreak();

@@ -13,7 +13,4 @@ public interface PlayersDaoInterface {
 
     Optional<Player> findByName(String name);
     List<Player> getAll();
-
-
-    boolean delete(String name);
 }

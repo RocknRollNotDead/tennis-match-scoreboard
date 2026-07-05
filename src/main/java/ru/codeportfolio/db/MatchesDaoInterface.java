@@ -13,7 +13,4 @@ public interface MatchesDaoInterface {
     List<Match> find(String player);
     List<Match> getAll();
 
-    Optional<Match> update(Player homePlayer, Player guestPlayer, Player winner);
-
-    boolean delete(Player homePlayer, Player guestPlayer);
 }

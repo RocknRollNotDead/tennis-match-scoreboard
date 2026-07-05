@@ -2,11 +2,12 @@ package ru.codeportfolio.services;
 
 import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
-import ru.codeportfolio.DTO.*;
+import ru.codeportfolio.DTO.MatchesResponseDto;
+import ru.codeportfolio.DTO.OneMatchDto;
+import ru.codeportfolio.DTO.ScoreResponseDto;
 import ru.codeportfolio.DTO.mapper.ToDtoUtil;
 import ru.codeportfolio.db.MatchesDao;
 import ru.codeportfolio.db.PlayersDao;
-import ru.codeportfolio.exceptions.AlreadyExistException;
 import ru.codeportfolio.exceptions.NotFoundException;
 import ru.codeportfolio.exceptions.ValidationException;
 import ru.codeportfolio.models.entities.Match;
@@ -47,15 +48,20 @@ public class MatchesService {
     public ScoreResponseDto incPoint(String uuid, String playerName) {
 
         UUID id = UUID.fromString(uuid);
+
         Score score = scores.get(id);
         if (score == null) {
             throw new NotFoundException("Not found match!");
         }
-        score.incPoint(playerName);
 
-        if (score.getWinnerName() != null) {
-            saveMatch(score);
-            scores.remove(id);
+        synchronized (score) {
+
+            score.incPoint(playerName);
+
+            if (score.getWinnerName() != null) {
+                saveMatch(score);
+                scores.remove(id);
+            }
         }
 
         return ToDtoUtil.toResponseDtoFromScore(

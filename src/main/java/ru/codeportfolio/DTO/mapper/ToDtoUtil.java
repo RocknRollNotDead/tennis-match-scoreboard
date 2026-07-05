@@ -13,6 +13,7 @@ public class ToDtoUtil {
 
     public static List<OneMatchDto> toMatchDtoList(List<Match> matches){
         return matches.stream().map(match ->
+
                 new OneMatchDto(match.getHomePlayer().getName(),
                         match.getGuestPlayer().getName(),
                         match.getWinner().getName())).toList();
