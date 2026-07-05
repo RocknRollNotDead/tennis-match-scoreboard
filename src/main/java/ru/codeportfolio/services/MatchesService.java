@@ -53,16 +53,17 @@ public class MatchesService {
             throw new ValidationException("Uncorrect uuid in request", e);
         }
 
-
         Score score = scores.get(id);
         if (score == null) {
             throw new NotFoundException("Not found match!");
         }
 
         synchronized (score) {
+            if (score.getWinnerName() != null) {
+                throw new ValidationException("Match was finished");
+            }
 
             score.incPoint(playerName);
-
             if (score.getWinnerName() != null) {
                 saveMatch(score);
                 scores.remove(id);
