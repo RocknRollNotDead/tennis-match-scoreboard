@@ -141,7 +141,7 @@ su -s /bin/bash tomcat -c /opt/tomcat/bin/startup.sh
 
 После этого приложение должно появиться в списке в начале страницы со статусом `running` (`true`), а также развернуться по адресу:
 ```
-http://000.000.000.000:8080/tennis-scoreboard-table/
+http://000.000.000.000:8080/tennis-match-scoreboard/
 ```
 
 ## О том, чему я научился
