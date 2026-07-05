@@ -28,7 +28,7 @@
 
 ### 2. Настраивается линукс для программы через терминал
 
-**2.1. Установливается JDK**
+**2.1. Устанавливается JDK**
 ```bash
 apt update && apt upgrade -y
 apt install -y openjdk-21-jre-headless
@@ -96,13 +96,13 @@ local   all   postgres   peer
 Чтобы не загружать файлы через Linux и командную строку, можно воспользоваться веб интерфейсом Tomcat, для возможности этого нужно создать пользователя, набрав `/opt/tomcat/conf/tomcat-users.xml` (этим открывается файл):
 
 В нём вместо этого:
-```xml
+```
 ....
 </tomcat users>
 ```
 
 Делается это
-```xml
+```
 ....
 <role rolename="manager-gui"/>
 <user username="admin" password="mypassword" roles="manager-gui"/>
