@@ -7,20 +7,25 @@ import java.util.Objects;
 
 @Entity
 @Table (name = "matches",
-        check = @CheckConstraint(
-                name = "notnull",
-                constraint = "winner = player_1 OR winner = player_2 OR winner IS NULL"))
+        check = {
+        @CheckConstraint(
+                        name = "notnull",
+                        constraint = "winner = player_1 OR winner = player_2 OR winner IS NULL"),
+        @CheckConstraint(
+                        name = "player1_not_player2",
+                        constraint = "player_1 != player_2")
+})
 public class Match {
 
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
         private Long id;
 
-        @ManyToOne//(cascade = CascadeType.PERSIST)
+        @ManyToOne
         @JoinColumn(name = "player_1", nullable = false)
         private Player homePlayer;
 
-        @ManyToOne//(cascade = CascadeType.PERSIST)
+        @ManyToOne
         @JoinColumn(name = "player_2", nullable = false)
         private Player guestPlayer;
 

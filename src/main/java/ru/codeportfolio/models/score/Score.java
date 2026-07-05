@@ -8,7 +8,6 @@ public class Score {
     private Game game;
     private Set set;
     private TieBreak tieBreak;
-    private String winner;
     private int generalScoreHomePlayer = 0;
     private int generalScoreGuestPlayer = 0;
 
@@ -90,10 +89,6 @@ public class Score {
             generalScoreHomePlayer++;
             set = new Set();
 
-            if (generalScoreHomePlayer >= 2) {
-                winner = homePlayer;
-            }
-
         } else if (set.getGuestPlayerGames() >= 6) {
             turnOnTieBreak();
         }
@@ -139,10 +134,6 @@ public class Score {
         )) {
             generalScoreGuestPlayer++;
             set = new Set();
-
-            if (generalScoreGuestPlayer >= 2) {
-                winner = guestPlayer;
-            }
         } else if (set.getHomePlayerGames() >= 6) {
             turnOnTieBreak();
         }
@@ -198,7 +189,12 @@ public class Score {
     }
 
     public String getWinnerName() {
-        return winner;
+        if (generalScoreGuestPlayer >= 2){
+            return guestPlayer;
+        } else if (generalScoreHomePlayer >= 2){
+            return homePlayer;
+        }
+        return null;
     }
 
     public int getGeneralScoreHomePlayer() {
