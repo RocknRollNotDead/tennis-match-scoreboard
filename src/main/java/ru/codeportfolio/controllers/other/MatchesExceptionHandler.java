@@ -10,6 +10,7 @@ import ru.codeportfolio.controllers.MatchesController;
 import ru.codeportfolio.exceptions.AlreadyExistException;
 import ru.codeportfolio.exceptions.DataAccessException;
 import ru.codeportfolio.exceptions.NotFoundException;
+import ru.codeportfolio.exceptions.ValidationException;
 
 import java.time.Instant;
 import java.util.Map;
@@ -27,6 +28,11 @@ public class MatchesExceptionHandler {
     @ExceptionHandler(AlreadyExistException.class)
     public ResponseEntity<Map<String, String>> handleGeneric(AlreadyExistException e) {
         return buildResponse(HttpStatus.CONFLICT, e.getMessage());
+    }
+
+    @ExceptionHandler(ValidationException.class)
+    public ResponseEntity<Map<String, String>> handleGeneric(ValidationException e) {
+        return buildResponse(HttpStatus.BAD_REQUEST, e.getMessage());
     }
 
     @ExceptionHandler(DataAccessException.class)

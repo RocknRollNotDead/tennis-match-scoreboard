@@ -1,5 +1,8 @@
 package ru.codeportfolio.models.score;
 
+import ru.codeportfolio.exceptions.NotFoundException;
+import ru.codeportfolio.models.entities.Player;
+
 public class Score {
     private final String homePlayer;
     private final String guestPlayer;
@@ -24,6 +27,15 @@ public class Score {
         set = new Set();
     }
 
+    public void incPoint(String playerName){
+        if (getHomePlayerName().equals(playerName)) {
+            incHomePlayerPoint();
+        } else if (getGuestPlayerName().equals(playerName)) {
+            incGuestPlayerPoint();
+        } else {
+            throw new NotFoundException("not find player " + playerName);
+        }
+    }
 
     public void incHomePlayerPoint() {
 

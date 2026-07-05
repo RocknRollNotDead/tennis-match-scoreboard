@@ -8,6 +8,7 @@ import ru.codeportfolio.db.MatchesDao;
 import ru.codeportfolio.db.PlayersDao;
 import ru.codeportfolio.exceptions.AlreadyExistException;
 import ru.codeportfolio.exceptions.NotFoundException;
+import ru.codeportfolio.exceptions.ValidationException;
 import ru.codeportfolio.models.entities.Match;
 import ru.codeportfolio.models.entities.Player;
 import ru.codeportfolio.models.score.Score;
@@ -22,18 +23,21 @@ public class MatchesService {
     private final PlayersDao playersDao;
     private static final int SIZE_PAGE = 5;
 
+    private final Map<UUID, Score> scores = new ConcurrentHashMap<>();
+
     public MatchesService(MatchesDao matchesDao, PlayersDao playersDao) {
         this.matchesDao = matchesDao;
         this.playersDao = playersDao;
     }
 
-    private static final Map<UUID, Score> scores = new ConcurrentHashMap<>();
-
-
     public UUID createMatch(String firstPlayerName, String secondPlayerName) {
+        firstPlayerName = PlayerValidateUtil.normalizeRequest(firstPlayerName);
+        secondPlayerName = PlayerValidateUtil.normalizeRequest(secondPlayerName);
+
         if (firstPlayerName.equals(secondPlayerName)) {
-            throw new AlreadyExistException("you can't play with yourself!");
+            throw new ValidationException("you can't play with yourself!");
         }
+
         Score score = createScore(firstPlayerName, secondPlayerName);
         UUID uuid = generateUUID();
         scores.put(uuid, score);
@@ -44,29 +48,20 @@ public class MatchesService {
 
         UUID id = UUID.fromString(uuid);
         Score score = scores.get(id);
-        if (score.getHomePlayerName().equalsIgnoreCase(playerName)) {
-            score.incHomePlayerPoint();
-        } else if (score.getGuestPlayerName().equalsIgnoreCase(playerName)) {
-            score.incGuestPlayerPoint();
-        } else {
-            throw new NotFoundException("not find player " + playerName);
+        if (score == null) {
+            throw new NotFoundException("Not found match!");
         }
+        score.incPoint(playerName);
 
         if (score.getWinnerName() != null) {
-            matchesDao.save(
-                    new Match(
-                            playersDao.findByName(score.getHomePlayerName()).orElse(
-                                    new Player(score.getHomePlayerName())),
-                            playersDao.findByName(score.getGuestPlayerName()).orElse(
-                                    new Player(score.getGuestPlayerName())),
-                            playersDao.findByName(score.getWinnerName()).orElse(
-                                    new Player(score.getWinnerName()))
-                    ));
+            saveMatch(score);
+            scores.remove(id);
         }
 
         return ToDtoUtil.toResponseDtoFromScore(
                 score);
     }
+
 
     public ScoreResponseDto findMatch(String uuid) {
 
@@ -103,6 +98,19 @@ public class MatchesService {
         return matchesResponseDto;
     }
 
+
+    private void saveMatch(Score score) {
+        matchesDao.save(
+                new Match(
+                        playersDao.findByName(score.getHomePlayerName()).orElse(
+                                new Player(score.getHomePlayerName())),
+                        playersDao.findByName(score.getGuestPlayerName()).orElse(
+                                new Player(score.getGuestPlayerName())),
+                        playersDao.findByName(score.getWinnerName()).orElse(
+                                new Player(score.getWinnerName()))
+                ));
+    }
+
     private @NonNull List<Match> getMatchesFromDao(String playerName) {
         List<Match> matches;
         if (playerName == null || playerName.isBlank()) {
@@ -118,10 +126,9 @@ public class MatchesService {
 
     private Integer normalizePage(Integer page) {
 
-        if (page == null){
+        if (page == null) {
             page = 0;
-        }
-        else {
+        } else {
             page = page - 1;
         }
         return page;
@@ -130,7 +137,7 @@ public class MatchesService {
 
     private Integer calculateTotalPages(List<Match> matches) {
         Integer result;
-        result = matches.size() / 5;
+        result = Math.ceilDiv(matches.size(), SIZE_PAGE);
         if (result == 0) {
             result = null;
         }

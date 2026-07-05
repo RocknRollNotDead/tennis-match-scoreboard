@@ -3,6 +3,8 @@
 Третий учебный проект из [роадмапа Сергея Жукова](https://zhukovsd.github.io/java-backend-learning-course/).
 [ТЗ проекта](https://zhukovsd.github.io/java-backend-learning-course/projects/tennis-scoreboard/).
 
+Задеплоен на http://193.168.46.216:8080/tennis-match-scoreboard
+
 ## Стек и структура
 
 **Backend**
@@ -139,7 +141,7 @@ su -s /bin/bash tomcat -c /opt/tomcat/bin/startup.sh
 
 После этого приложение должно появиться в списке в начале страницы со статусом `running` (`true`), а также развернуться по адресу:
 ```
-http://000.000.000.000:8080/currency-exchange/
+http://000.000.000.000:8080/tennis-scoreboard-table/
 ```
 
 ## О том, чему я научился
