@@ -1,6 +1,6 @@
 # Табло теннисного матча (Tennis scoreboard tablo)
 
-Третий учебный проект из [роадмапа Сергея Жукова](https://zhukovsd.github.io/java-backend-learning-course/) — «Обмен валют».
+Третий учебный проект из [роадмапа Сергея Жукова](https://zhukovsd.github.io/java-backend-learning-course/).
 [ТЗ проекта](https://zhukovsd.github.io/java-backend-learning-course/projects/tennis-scoreboard/).
 
 ## Стек и структура
@@ -56,6 +56,39 @@ chown -R tomcat:tomcat /opt/tomcat
 
 Устанавливается postgresSQL, запускается, а потом создаётся бд
 
+Установка
+```bash
+sudo apt install postgresql postgresql-contrib
+sudo systemctl start postgresql
+sudo systemctl enable postgresql
+```
+Заход в postgres:
+`psql -U postgres`
+
+Создание бд
+```SQL
+CREATE DATABASE mydb;
+```
+
+Задание пароля из конфига
+```SQL
+ALTER USER postgres PASSWORD 'password';
+```
+
+Выход - `\q`
+
+Открытие postgres для запросов по localhost
+```
+sudo nano /etc/postgresql/16/main/pg_hba.conf
+```
+Замена `peer` в строчке 
+```
+local   all   postgres   peer
+```
+в открывшемся файле на `scram-sha-256`
+
+Перезагрузка для сохранения изменений
+```sudo systemctl restart postgresql```
 
 
 **2.5. Добавляется админ для Tomcat Manager**
@@ -77,37 +110,32 @@ chown -R tomcat:tomcat /opt/tomcat
 ```
 (вместо mypassword вставляется свой придуманный пароль)
 
-В Tomcat в `webapps/manager/META-INF/context.xml` может быть открыто (не закомментировано) значение `RemoteAddrValve`/`RemoteCIDRValve` которое ограничивает доступ к Manager, и его можно открыть только в убунту по адресу `localhost`, я проверил и закомментировал, если он был не закомментирован.
+В Tomcat в `webapps/manager/META-INF/context.xml` может быть открыто (не закомментировано) значение `RemoteAddrValve`/`RemoteCIDRValve` которое ограничивает доступ к Manager, и его можно открыть только в убунту по адресу `localhost`, надо проверить и закомментировать, если он был не закомментирован.
 
 
-**2.7. Открыл порт 8080**
+**2.6. Открывается порт 8080**
 
 ```bash
 ufw allow 8080/tcp
 ```
 
-**2.8. Запустить Tomcat от пользователя tomcat**
+**2.7. Запускается Tomcat от пользователя tomcat**
 
 ```bash
 su -s /bin/bash tomcat -c /opt/tomcat/bin/startup.sh
 ```
 
-В конце присланного сообщения увидел `Tomcat started.`
-Но на всякий случай лучше проверить:
-```bash
-ps aux | grep tomcat              # процесс запущен
-ss -tlnp | grep 8080               # порт слушается
-```
+В конце присланного сообщения должно быть `Tomcat started.`
 
 ### 3. Загрузка `.war` в Manager
 
-По ссылке `http://000.000.000.000:8080/manager/html` открывается Manager Tomcat, и вводим логин и пароль из `<user username="admin" password="mypassword" roles="manager-gui"/>` (из того файла `/opt/tomcat/conf/tomcat-users.xml`).
+По ссылке `http://000.000.000.000:8080/manager/html` открывается Manager Tomcat, и вводится логин и пароль из `<user username="admin" password="mypassword" roles="manager-gui"/>` (из того файла `/opt/tomcat/conf/tomcat-users.xml`).
 
-и после этого собрал .war - `mvn clean package` в IntelliJ IDEA
+и после этого собиратся .war - `mvn clean package` в IntelliJ IDEA
 
-Нашёл раздел **"WAR file to deploy"** и кнопку "Выбрать файл".
+Находится раздел **"WAR file to deploy"** и кнопка "Выбрать файл".
 
-выбрать собранный `.war` из папки target → нажал **"Развернуть"**.
+Выбирается собранный `.war` из папки target → нажимается **"Развернуть"**.
 
 После этого приложение должно появиться в списке в начале страницы со статусом `running` (`true`), а также развернуться по адресу:
 ```
@@ -115,3 +143,5 @@ http://000.000.000.000:8080/currency-exchange/
 ```
 
 ## О том, чему я научился
+
+Я освоил Spring MVC, Hibernate, юнит и мок-тесты.

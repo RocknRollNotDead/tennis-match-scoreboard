@@ -14,6 +14,7 @@ import ru.codeportfolio.models.entities.Match;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 
 @Repository
 public class MatchesDao implements MatchesDaoInterface {
@@ -21,63 +22,55 @@ public class MatchesDao implements MatchesDaoInterface {
     @Autowired
     private final SessionFactory sessionFactory;
 
-    public MatchesDao(SessionFactory sessionFactory) {
+    @Autowired
+    private final TransactionManager manager;
+
+    public MatchesDao(SessionFactory sessionFactory, TransactionManager manager) {
         this.sessionFactory = sessionFactory;
+        this.manager = manager;
     }
 
     public Match save(Match match) {
-        try (Session session = sessionFactory.openSession()) {
-            session.beginTransaction();
+
+        return manager.executeInTransaction(session -> {
 
             session.persist(match);
-
-            session.getTransaction().commit();
             return match;
-        } catch (ConstraintViolationException e) {
-            throw new AlreadyExistException(e);
-        } catch (RuntimeException e) {
-            throw new DataAccessException(e);
-        }
+
+        });
 
     }
 
 
     public List<Match> find(String playerName) {
-        try (Session session = sessionFactory.openSession()) {
-            session.beginTransaction();
 
-            List<Match> matches = session.createQuery("from Match where homePlayer.name like :player " +
-                            "or guestPlayer.name like :player", Match.class)
-                    .setParameter("player", "%" + playerName + "%")
-                    .list();
+        return manager.executeInTransaction(session ->
+                {
+                    return session.createQuery("from Match where homePlayer.name like :player " +
+                                    "or guestPlayer.name like :player", Match.class)
+                            .setParameter("player", "%" + playerName + "%")
+                            .list();
+                }
+        );
 
-            session.getTransaction().commit();
-            return matches;
-        } catch (RuntimeException e) {
-            throw new DataAccessException("Database Error", e);
-        }
     }
 
 
     @Override
     public List<Match> getAll() {
-        try (Session session = sessionFactory.openSession()) {
-            session.beginTransaction();
+        return manager.executeInTransaction(session ->
+                {
+                    return session.createQuery("from Match ", Match.class).list();
+                }
+        );
 
-            List<Match> matches = session.createQuery("from Match ", Match.class).list();
-
-            session.getTransaction().commit();
-            return matches;
-        } catch (RuntimeException e) {
-            throw new DataAccessException("Database Error", e);
-        }
     }
 
 
     @Override
     public Optional<Match> update(Player homePlayer, Player guestPlayer, Player winner) {
-        try (Session session = sessionFactory.openSession()) {
-            session.beginTransaction();
+        return manager.executeInTransaction(session ->
+        {
 
             Match match = session.createQuery("from Match where homePlayer = :homePlayer " +
                             "and guestPlayer = :guestPlayer", Match.class)
@@ -88,24 +81,19 @@ public class MatchesDao implements MatchesDaoInterface {
                 return Optional.empty();
             }
             match.setWinner(winner);
-
-            session.getTransaction().commit();
             return Optional.of(match);
-        } catch (NonUniqueResultException e) {
-            throw new CannotFindNessesaryEntity(e);
-        } catch (RuntimeException e) {
-            throw new DataAccessException("Database Error", e);
-        }
+
+        });
+
     }
 
 
     @Override
     public boolean delete(Player homePlayer, Player guestPlayer) {
-        boolean result = false;
 
-        try (Session session = sessionFactory.openSession()) {
-            session.beginTransaction();
-
+        return manager.executeInTransaction(session ->
+        {
+            boolean result = false;
             Match match = session.createQuery("from Match where homePlayer = :homePlayer " +
                             "and guestPlayer = :guestPlayer", Match.class)
                     .setParameter("homePlayer", homePlayer)
@@ -114,15 +102,8 @@ public class MatchesDao implements MatchesDaoInterface {
                 session.remove(match);
                 result = true;
             }
-
-            session.getTransaction().commit();
-        }  catch (NonUniqueResultException e) {
-            throw new CannotFindNessesaryEntity(e);
-        } catch (RuntimeException e) {
-            throw new DataAccessException("Database Error", e);
-        }
-
-        return result;
+            return result;
+        });
     }
 
 }

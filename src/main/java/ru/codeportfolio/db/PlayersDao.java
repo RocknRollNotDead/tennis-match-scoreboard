@@ -17,96 +17,65 @@ import ru.codeportfolio.models.entities.Player;
 
 import java.util.List;
 import java.util.Optional;
+
 @Repository
 public class PlayersDao implements PlayersDaoInterface {
 
-
     @Autowired
-    private final SessionFactory factory;
+    private final TransactionManager manager;
+
 
     private static final Logger log = LoggerFactory.getLogger(PlayersDao.class);
-    public PlayersDao(SessionFactory factory) {
-        this.factory = factory;
+
+    public PlayersDao(TransactionManager manager) {
+        this.manager = manager;
     }
 
-
-//todo переделать под transactionhelper
-
-
     public Player save(Player player) {
-        try (Session session = factory.openSession()) {
-            session.beginTransaction();
 
+        return manager.executeInTransaction(session ->
+        {
             session.persist(player);
-
-            session.getTransaction().commit();
             return player;
-        } catch (ConstraintViolationException e){
-            throw  new AlreadyExistException(e);
-        } catch (RuntimeException e) {
-            throw new DataAccessException("Database Error", e);
-        }
+        });
+
     }
 
     @Override
-    public Optional<Player> findByName(String name){
+    public Optional<Player> findByName(String name) {
 
-        try (Session session = factory.openSession()) {
-            session.beginTransaction();
-
+        return manager.executeInTransaction(session ->
+        {
             Player player = session.createQuery("from Player where name = :name", Player.class)
-                    .setParameter("name", name).uniqueResult(); // может кинуть NonUniqueResultException
-
-            session.getTransaction().commit();
-
+                    .setParameter("name", name).uniqueResult();
             return Optional.ofNullable(player);
-        } catch (NonUniqueResultException e) {
-            throw new CannotFindNessesaryEntity(e);
-        } catch (RuntimeException e) {
-            throw new DataAccessException("Database Error", e);
-        }
-
-        // не нашлось
+        });
     }
 
     @Override
     public List<Player> getAll() {
-        try (Session session = factory.openSession()) {
-            session.beginTransaction();
+        return manager.executeInTransaction(session ->
+        {
+            return session.createQuery("from Player", Player.class).list();
+        });
 
-            List<Player> players = session.createQuery("from Player", Player.class).list();
-
-            session.getTransaction().commit();
-            return players;
-        } catch (RuntimeException e) {
-            throw new DataAccessException("Database Error", e);
-        }
     }
-
 
 
     @Override
     public boolean delete(String name) {
-        boolean result = false;
-        try (Session session = factory.openSession()) {
 
-            session.beginTransaction();
-
+        return manager.executeInTransaction(session ->
+        {
+            boolean result = false;
             Player player = session.createQuery("from Player where name = :name", Player.class)
                     .setParameter("name", name).uniqueResult();
-            if(player != null){
+            if (player != null) {
                 session.remove(player);
                 result = true;
             }
-
-            session.getTransaction().commit();
-        } catch (NonUniqueResultException e) {
-            throw new CannotFindNessesaryEntity(e);
-        } catch (RuntimeException e) {
-            throw new DataAccessException("Database Error", e);
-        }
-        return result;
-
+            return result;
+        });
     }
 }
 
