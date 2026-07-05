@@ -146,4 +146,4 @@ http://000.000.000.000:8080/tennis-scoreboard-table/
 
 ## О том, чему я научился
 
-Я освоил Spring MVC, Hibernate, юнит и мок-тесты.
+Я освоил на начальном уровне Spring MVC, Hibernate, юнит и мок-тесты.
