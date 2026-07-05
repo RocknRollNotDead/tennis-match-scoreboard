@@ -1,5 +1,6 @@
 package ru.codeportfolio.services;
 
+import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 import ru.codeportfolio.DTO.*;
 import ru.codeportfolio.db.MatchesDao;
@@ -29,7 +30,7 @@ public class MatchesService {
 
 
     public UUID createMatch(String firstPlayerName, String secondPlayerName) {
-        if (firstPlayerName.equals(secondPlayerName)){
+        if (firstPlayerName.equals(secondPlayerName)) {
             throw new AlreadyExistException("you can't play with yourself!");
         }
         Score score = createScore(firstPlayerName, secondPlayerName);
@@ -50,7 +51,7 @@ public class MatchesService {
             throw new NotFoundException("not find player " + playerName);
         }
 
-        if (score.getWinnerName() != null){
+        if (score.getWinnerName() != null) {
             matchesDao.save(
                     new Match(
                             new Player(score.getHomePlayerName()),
@@ -82,41 +83,46 @@ public class MatchesService {
 
         List<Match> matches;
 
-        // todo вынести
+        matches = getMatchesFromDao(playerName);
+
+        Integer totalPages = calculateTotalPages(matches);
+
+        page = normalizePage(page);
+        matches = getMatchesPage(matches, page);
+        if (page != null) {
+            page = page + 1;
+        }
+
+        List<OneMatchDto> matchesDto = ToDtoUtil.toMatchDtoList(matches);
+
+
+        MatchesResponseDto matchesResponseDto = new MatchesResponseDto(matchesDto, page, totalPages);
+        return matchesResponseDto;
+    }
+
+    private @NonNull List<Match> getMatchesFromDao(String playerName) {
+        List<Match> matches;
         if (playerName == null || playerName.isBlank()) {
             matches = matchesDao.getAll();
         } else {
             playerName = PlayerValidateUtil.normalizeRequest(playerName);
-
-//            Player player = playersDao.findByName(playerName).orElseThrow(() ->
-//                    new NotFoundException("not find player " + playerNameForExceptionMessage));
             matches = matchesDao.find(playerName);
 
         }
         matches.sort(Comparator.comparing(match -> match.getHomePlayer().getName()));
+        return matches;
+    }
 
-        Integer totalPages = calculateTotalPages(matches);
-
+    private Integer normalizePage(Integer page) {
 
         if (page >= 1) {
             page = page - 1;
         } else {
             page = null;
         }
-        matches = getMatchesPage(matches, page);
-        if (page != null){
-            page = page + 1;
-        }
+        return page;
 
-
-        List<OneMatchDto> matchesDto = ToDtoUtil.toMatchDtoList(matches);
-
-        MatchesResponseDto matchesResponseDto = new MatchesResponseDto(matchesDto, page, totalPages);
-        return matchesResponseDto;
     }
-
-
-
 
     private Integer calculateTotalPages(List<Match> matches) {
         Integer result;
