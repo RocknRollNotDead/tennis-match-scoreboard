@@ -3,6 +3,8 @@ package ru.codeportfolio.models.entities;
 import jakarta.persistence.*;
 import org.hibernate.annotations.Check;
 
+import java.util.Objects;
+
 @Entity
 @Table (name = "matches",
         check = @CheckConstraint(
@@ -14,11 +16,11 @@ public class Match {
         @GeneratedValue(strategy = GenerationType.IDENTITY)
         private Long id;
 
-        @ManyToOne
+        @ManyToOne//(cascade = CascadeType.PERSIST)
         @JoinColumn(name = "player_1", nullable = false)
         private Player homePlayer;
 
-        @ManyToOne
+        @ManyToOne//(cascade = CascadeType.PERSIST)
         @JoinColumn(name = "player_2", nullable = false)
         private Player guestPlayer;
 
@@ -68,5 +70,17 @@ public class Match {
                         ", guestPlayer=" + guestPlayer +
                         ", winner=" + winner +
                         '}';
+        }
+
+        @Override
+        public boolean equals(Object o) {
+                if (o == null || getClass() != o.getClass()) return false;
+                Match match = (Match) o;
+                return Objects.equals(id, match.id) && Objects.equals(homePlayer, match.homePlayer) && Objects.equals(guestPlayer, match.guestPlayer) && Objects.equals(winner, match.winner);
+        }
+
+        @Override
+        public int hashCode() {
+                return Objects.hash(id, homePlayer, guestPlayer, winner);
         }
 }

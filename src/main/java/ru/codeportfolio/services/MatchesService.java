@@ -54,9 +54,12 @@ public class MatchesService {
         if (score.getWinnerName() != null) {
             matchesDao.save(
                     new Match(
-                            new Player(score.getHomePlayerName()),
-                            new Player(score.getGuestPlayerName()),
-                            new Player(score.getWinnerName())
+                            playersDao.findByName(score.getHomePlayerName()).orElse(
+                                    new Player(score.getHomePlayerName())),
+                            playersDao.findByName(score.getGuestPlayerName()).orElse(
+                                    new Player(score.getGuestPlayerName())),
+                            playersDao.findByName(score.getWinnerName()).orElse(
+                                    new Player(score.getWinnerName()))
                     ));
         }
 
@@ -89,9 +92,8 @@ public class MatchesService {
 
         page = normalizePage(page);
         matches = getMatchesPage(matches, page);
-        if (page != null) {
-            page = page + 1;
-        }
+        page = page + 1;
+
 
         List<OneMatchDto> matchesDto = ToDtoUtil.toMatchDtoList(matches);
 
@@ -118,7 +120,7 @@ public class MatchesService {
         if (page >= 1) {
             page = page - 1;
         } else {
-            page = null;
+            page = 0;
         }
         return page;
 
