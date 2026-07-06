@@ -50,7 +50,7 @@ public class MatchesService {
         try {
             id = UUID.fromString(uuid);
         } catch (RuntimeException e) {
-            throw new ValidationException("Uncorrect uuid in request", e);
+            throw new ValidationException("Uncorrected uuid in request", e);
         }
 
         Score score = scores.get(id);
@@ -80,7 +80,7 @@ public class MatchesService {
         try {
             id = UUID.fromString(uuid);
         } catch (RuntimeException e) {
-            throw new ValidationException("Uncorrect uuid in request", e);
+            throw new ValidationException("Uncorrected uuid in request", e);
         }
         Score score;
         try {

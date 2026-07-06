@@ -7,6 +7,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.codeportfolio.DTO.MatchesResponseDto;
+import ru.codeportfolio.DTO.OneMatchDto;
 import ru.codeportfolio.db.MatchesDao;
 import ru.codeportfolio.db.PlayersDao;
 import ru.codeportfolio.models.entities.Match;
@@ -180,6 +181,26 @@ public class IncScoreTest {
         ), result);
 
     }
+
+    @Test
+    public void checkGetPage1(){
+        when(matchesDao.getAll(0, 5)).thenReturn(
+                new ArrayList<>(List.of(
+                        new Match(new Player(PLAYER_1), new Player(PLAYER_2), new Player(PLAYER_1)),
+                        new Match(new Player(PLAYER_2), new Player(PLAYER_1), new Player(PLAYER_2))
+                        )));
+        when(matchesDao.countMatches()).thenReturn(2L);
+
+        MatchesResponseDto result = service.getAllMatches(null, "");
+        assertEquals(new MatchesResponseDto(
+                new ArrayList<>(List.of(
+                        new OneMatchDto(PLAYER_1, PLAYER_2, PLAYER_1),
+                        new OneMatchDto(PLAYER_2, PLAYER_1, PLAYER_2)
+                )), 1, 1
+        ), result);
+
+    }
+
 
 
 
