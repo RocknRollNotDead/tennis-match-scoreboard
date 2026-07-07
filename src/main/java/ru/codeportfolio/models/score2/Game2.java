@@ -1,9 +1,10 @@
 package ru.codeportfolio.models.score2;
 
+import ru.codeportfolio.models.score.Game;
 import ru.codeportfolio.models.score.Point;
 
 public class Game2 extends Set2 {
-    // 40-00
+
     private Point point;
 
     public Game2() {
@@ -21,6 +22,7 @@ public class Game2 extends Set2 {
             if (!opponentPoints.equals("40")){
                 super.incGame(opponentScore);
                 point = Point.NULL;
+                opponentScore.obnulit();
             } else {
                 point = point.getLower();
             }
@@ -30,10 +32,11 @@ public class Game2 extends Set2 {
             } else if (!opponentPoints.equals("AD")){
                 super.incGame(opponentScore);
                 point = Point.NULL;
+                opponentScore.obnulit();
+            } else {
+                opponentScore.lowerPoint();
             }
-
-
-            // else do nothing;
+            // 40 - AD - снизить
         } else {
             point = point.getNext();
         }
@@ -47,4 +50,14 @@ public class Game2 extends Set2 {
     public Point getPoint() {
         return point;
     }
+
+    protected void obnulit(){
+        point = Point.NULL;
+    }
+
+    protected void lowerPoint(){
+        point = point.getLower();
+    }
+
+
 }

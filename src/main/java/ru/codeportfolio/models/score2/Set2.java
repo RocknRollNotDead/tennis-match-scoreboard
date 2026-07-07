@@ -4,7 +4,8 @@ public abstract class Set2 extends Score2 {
     // 6-0
     private int games;
 
-    private TieBreak2 tieBreak = null;
+
+    private TieBreak2 tieBreak;
 
     public Set2() {
         super();
@@ -12,17 +13,49 @@ public abstract class Set2 extends Score2 {
     }
 
     protected void incGame(Score2 opponentScore) {
-        if (games <= 5) {
+        if (games <= 4) {
             games++;
 
+        }
+        if (games == 5) {
             if (opponentScore.getSet().getGames() == 5) {
                 games++;
+            } else if(opponentScore.getSet().getGames() == 6) {
+                if (tieBreak == null) {
+                    tieBreak = new TieBreak2();
+                }
+
+                if (((tieBreak.getInt() - opponentScore.getTieBreakPoints()) >= 2) && tieBreak.getInt() >= 6) {
+                    super.incSets();
+                    opponentScore.obnulitGames();
+                    games = 0;
+                } else {
+                    tieBreak.inc();
+                }
             } else {
                 super.incSets();
+                opponentScore.obnulitGames();
                 games = 0;
             }
         } else if (games == 6) {
+
+            super.incSets();
+            opponentScore.obnulitGames();
+            games = 0;
+        }
+
+
+
+        if (games == 6) {
             if (opponentScore.getSet().getGames() == 6) {
+
+                if (opponentScore.getSet().getGames() == 5) {
+                    games++;
+                } else {
+                    super.incSets();
+                    games = 0;
+                }
+
 
                 if (tieBreak == null) {
                     tieBreak = new TieBreak2();
@@ -30,6 +63,8 @@ public abstract class Set2 extends Score2 {
 
                 if (((tieBreak.getInt() - opponentScore.getTieBreakPoints()) >= 2) && tieBreak.getInt() >= 6) {
                     super.incSets();
+                    opponentScore.obnulitGames();
+                    games = 0;
                 } else {
                     tieBreak.inc();
                 }
@@ -43,6 +78,7 @@ public abstract class Set2 extends Score2 {
             }
         } else {
             super.incSets();
+            opponentScore.obnulitGames();
             games = 0;
         }
 
@@ -59,5 +95,9 @@ public abstract class Set2 extends Score2 {
 
     protected int getGames() {
         return games;
+    }
+
+    protected void obnulitGames(){
+        games = 0;
     }
 }

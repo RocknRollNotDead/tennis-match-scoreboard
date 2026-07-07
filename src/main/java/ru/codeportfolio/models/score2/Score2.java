@@ -37,6 +37,11 @@ public abstract class Score2 {
 
     public abstract void incPoint(Score2 opponentScore);
 
+    protected abstract void obnulit();
+
+    protected abstract void obnulitGames();
+
+    protected abstract void lowerPoint();
 
 
 
