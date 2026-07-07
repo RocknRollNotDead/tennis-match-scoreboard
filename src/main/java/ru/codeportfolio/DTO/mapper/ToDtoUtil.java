@@ -6,6 +6,7 @@ import ru.codeportfolio.DTO.ScoreResponseDto;
 import ru.codeportfolio.DTO.ScoreResponseDto2legacy;
 import ru.codeportfolio.models.score.Score;
 import ru.codeportfolio.models.entities.Match;
+import ru.codeportfolio.models.score2.Score2Dto;
 
 import java.util.List;
 
@@ -94,6 +95,34 @@ public class ToDtoUtil {
         );
         return scoreResponseDto;
     }
+
+
+    public static ScoreResponseDto toResponseDtoFromTennisMatch(Score2Dto player1Score, Score2Dto player2Score,
+                                                                String player1Name, String player2Name,
+                                                                String winnerName){
+
+        Integer gamesPlayer1 = player1Score.tieBreak() != null ? null : player1Score.games();
+        Integer gamesPlayer2 = player2Score.tieBreak() != null ? null : player2Score.games();
+
+        Integer tieBreakPlayer1 = player1Score.tieBreak() != null ? player1Score.tieBreak().getInt() : null;
+        Integer tieBreakPlayer2 = player2Score.tieBreak() != null ? player2Score.tieBreak().getInt() : null;
+
+        return new ScoreResponseDto(
+                new PlayerDto(player1Name,
+                        player1Score.points(),
+                        gamesPlayer1,
+                        player1Score.sets(),
+                        tieBreakPlayer1),
+                new PlayerDto(player2Name,
+                        player2Score.points(),
+                        gamesPlayer2,
+                        player2Score.sets(),
+                        tieBreakPlayer2),
+                winnerName
+        );
+
+    }
+
 
 
 

@@ -13,6 +13,8 @@ import ru.codeportfolio.exceptions.ValidationException;
 import ru.codeportfolio.models.entities.Match;
 import ru.codeportfolio.models.entities.Player;
 import ru.codeportfolio.models.score.Score;
+import ru.codeportfolio.models.score.TennisMatch;
+import ru.codeportfolio.models.score2.Score2;
 import ru.codeportfolio.validators.PlayerValidateUtil;
 
 import java.util.*;
@@ -24,7 +26,7 @@ public class MatchesService {
     private final PlayersDao playersDao;
     private static final int SIZE_PAGE = 5;
 
-    private final Map<UUID, Score> scores = new ConcurrentHashMap<>();
+    private final Map<UUID, TennisMatch> scores = new ConcurrentHashMap<>();
 
     public MatchesService(MatchesDao matchesDao, PlayersDao playersDao) {
         this.matchesDao = matchesDao;
@@ -39,7 +41,7 @@ public class MatchesService {
             throw new ValidationException("you can't play with yourself!");
         }
 
-        Score score = createScore(firstPlayerName, secondPlayerName);
+        TennisMatch score = createScore(firstPlayerName, secondPlayerName);
         UUID uuid = generateUUID();
         scores.put(uuid, score);
         return uuid;
@@ -53,25 +55,24 @@ public class MatchesService {
             throw new ValidationException("Uncorrected uuid in request", e);
         }
 
-        Score score = scores.get(id);
+        TennisMatch score = scores.get(id);
         if (score == null) {
             throw new NotFoundException("Not found match!");
         }
 
         synchronized (score) {
-            if (score.getWinnerName() != null) {
+            if (score.getWinner() != null) {
                 throw new ValidationException("Match was finished");
             }
 
             score.incPoint(playerName);
-            if (score.getWinnerName() != null) {
+            if (score.getWinner() != null) {
                 saveMatch(score);
                 scores.remove(id);
             }
         }
 
-        return ToDtoUtil.toResponseDtoFromScore(
-                score);
+        return score.getScore();
     }
 
 
@@ -82,7 +83,7 @@ public class MatchesService {
         } catch (RuntimeException e) {
             throw new ValidationException("Uncorrected uuid in request", e);
         }
-        Score score;
+        TennisMatch score;
         try {
             score = scores.get(id);
         } catch (NoSuchElementException e) {
@@ -91,7 +92,7 @@ public class MatchesService {
             throw e;
         }
 
-        return ToDtoUtil.toResponseDtoFromScore(score);
+        return score.getScore();
     }
 
     public MatchesResponseDto getAllMatches(Integer page, String playerName) {
@@ -123,15 +124,15 @@ public class MatchesService {
     }
 
 
-    private void saveMatch(Score score) {
+    private void saveMatch(TennisMatch score) {
         matchesDao.save(
                 new Match(
-                        playersDao.findByName(score.getHomePlayerName()).orElse(
-                                new Player(score.getHomePlayerName())),
-                        playersDao.findByName(score.getGuestPlayerName()).orElse(
-                                new Player(score.getGuestPlayerName())),
-                        playersDao.findByName(score.getWinnerName()).orElse(
-                                new Player(score.getWinnerName()))
+                        playersDao.findByName(score.getScore().firstPlayer().name()).orElse(
+                                new Player(score.getScore().firstPlayer().name())),
+                        playersDao.findByName(score.getScore().secondPlayer().name()).orElse(
+                                new Player(score.getScore().secondPlayer().name())),
+                        playersDao.findByName(score.getWinner()).orElse(
+                                new Player(score.getWinner()))
                 ));
     }
 
@@ -169,14 +170,14 @@ public class MatchesService {
     }
 
 
-    private Score createScore(String firstPlayerName, String secondPlayerName) {
+    private TennisMatch createScore(String firstPlayerName, String secondPlayerName) {
         Player homePlayer = playersDao.findByName(firstPlayerName).orElseGet(
                 () -> playersDao.save(new Player(firstPlayerName)));
 
         Player guestPlayer = playersDao.findByName(secondPlayerName).orElseGet(
                 () -> playersDao.save(new Player(secondPlayerName)));
 
-        return new Score(homePlayer.getName(), guestPlayer.getName());
+        return new TennisMatch(homePlayer.getName(), guestPlayer.getName());
     }
 
     private UUID generateUUID() {

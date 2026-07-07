@@ -10,9 +10,6 @@ public class MatchesDao implements MatchesDaoInterface {
 
     private final TransactionManager manager;
 
-    private static final String SEARCH_FOR_NAME = " where homePlayer.name like :player " +
-            "or guestPlayer.name like :player ";
-
     public MatchesDao(TransactionManager manager) {
         this.manager = manager;
     }
@@ -33,8 +30,12 @@ public class MatchesDao implements MatchesDaoInterface {
 
         return manager.executeInTransaction(session ->
                 {
-                    return session.createQuery("from Match" + SEARCH_FOR_NAME +
-                                    "order by homePlayer.name", Match.class)
+                    return session.createQuery("select m from Match m " +
+                                    "join fetch m.homePlayer " +
+                                    "join fetch m.guestPlayer " +
+                                    "join fetch m.winner " +
+                                    " where m.homePlayer.name like :player " +
+                                    "or m.guestPlayer.name like :player order by m.homePlayer.name", Match.class)
                             .setParameter("player", "%" + name + "%")
                             .setFirstResult(offset)
                             .setMaxResults(limit)
@@ -48,7 +49,12 @@ public class MatchesDao implements MatchesDaoInterface {
     public List<Match> getAll(int offset, int limit) {
         return manager.executeInTransaction(session ->
                 {
-                    return session.createQuery("from Match order by homePlayer.name", Match.class)
+                    return session.createQuery(
+                            "select m from Match m " +
+                                    "join fetch m.homePlayer " +
+                                    "join fetch m.guestPlayer " +
+                                    "join fetch m.winner " +
+                                    "order by m.homePlayer.name", Match.class)//
                             .setFirstResult(offset)
                             .setMaxResults(limit)
                             .list();

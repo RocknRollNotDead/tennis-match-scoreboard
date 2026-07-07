@@ -82,6 +82,7 @@ public class IncScoreTest {
         service.incPoint(uuid.toString(), PLAYER_1);
         service.incPoint(uuid.toString(), PLAYER_1);
 
+        System.out.println(service.findMatch(uuid.toString()));
         int result = service.findMatch(uuid.toString()).firstPlayer().games();
         assertEquals(1, result);
     }

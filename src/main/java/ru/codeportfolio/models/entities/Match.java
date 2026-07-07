@@ -42,11 +42,11 @@ public class Match {
                 this.winner = winner;
         }
 
-        public Match(Player homePlayer, Player guestPlayer) {
+        /*public Match(Player homePlayer, Player guestPlayer) {
                 this.homePlayer = homePlayer;
                 this.guestPlayer = guestPlayer;
         }
-
+*/
         public long getId() {
                 return id;
         }
