@@ -44,6 +44,5 @@ public abstract class Score2 {
     protected abstract void lowerPoint();
 
 
-
-
+    protected abstract void createTiebreak();
 }

@@ -18,15 +18,20 @@ public class Game2 extends Set2 {
                 .getGame()
                 .getPoint()
                 .getCode();
+//        System.out.println("beg op points " + opponentPoints);
+
         if (point.getCode().equals("AD")){
-            if (!opponentPoints.equals("40")){
+
+            if (/*opponentPoints.equals("40") ||*/ opponentPoints.equals("AD")){
+                point = point.getLower();
+            } else {
                 super.incGame(opponentScore);
                 point = Point.NULL;
                 opponentScore.obnulit();
-            } else {
-                point = point.getLower();
+
             }
         } else if (point.getCode().equals("40")){
+
             if (opponentPoints.equals("40")){
                 point = point.getNext();
             } else if (!opponentPoints.equals("AD")){

@@ -26,7 +26,7 @@ public enum Point {
     }
 
     public Point getLower(){
-        if (this == NULL){
+        if (this != AD){
             throw new RuntimeException();
         }
         return Point.values()[this.ordinal() - 1];

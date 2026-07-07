@@ -5,7 +5,7 @@ public abstract class Set2 extends Score2 {
     private int games;
 
 
-    private TieBreak2 tieBreak;
+    private TieBreak2 tieBreak = null;
 
     public Set2() {
         super();
@@ -17,11 +17,17 @@ public abstract class Set2 extends Score2 {
             games++;
 
         }
-        if (games == 5) {
+
+        else if (games == 5) {
             if (opponentScore.getSet().getGames() == 5) {
                 games++;
             } else if(opponentScore.getSet().getGames() == 6) {
+
+                System.out.println(tieBreak);
+
                 if (tieBreak == null) {
+
+                    opponentScore.createTiebreak();
                     tieBreak = new TieBreak2();
                 }
 
@@ -43,45 +49,6 @@ public abstract class Set2 extends Score2 {
             opponentScore.obnulitGames();
             games = 0;
         }
-
-
-
-        if (games == 6) {
-            if (opponentScore.getSet().getGames() == 6) {
-
-                if (opponentScore.getSet().getGames() == 5) {
-                    games++;
-                } else {
-                    super.incSets();
-                    games = 0;
-                }
-
-
-                if (tieBreak == null) {
-                    tieBreak = new TieBreak2();
-                }
-
-                if (((tieBreak.getInt() - opponentScore.getTieBreakPoints()) >= 2) && tieBreak.getInt() >= 6) {
-                    super.incSets();
-                    opponentScore.obnulitGames();
-                    games = 0;
-                } else {
-                    tieBreak.inc();
-                }
-
-
-//                if () {
-//                    super.incSets();
-//                    tieBreak = null;
-//                }
-
-            }
-        } else {
-            super.incSets();
-            opponentScore.obnulitGames();
-            games = 0;
-        }
-
     }
 
     @Override
@@ -99,5 +66,10 @@ public abstract class Set2 extends Score2 {
 
     protected void obnulitGames(){
         games = 0;
+    }
+
+    protected void createTiebreak(){
+        System.out.println("create tie");
+        tieBreak = new TieBreak2();
     }
 }
