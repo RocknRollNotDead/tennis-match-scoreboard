@@ -14,37 +14,53 @@ public class Game2 extends Set2 {
 
     @Override
     public void incPoint(Score2 opponentScore){
-        String opponentPoints = opponentScore
-                .getGame()
-                .getPoint()
-                .getCode();
-//        System.out.println("beg op points " + opponentPoints);
 
-        if (point.getCode().equals("AD")){
+        // tieBreak
 
-            if (/*opponentPoints.equals("40") ||*/ opponentPoints.equals("AD")){
-                point = point.getLower();
+
+
+        try {
+
+            getTieBreakPoints();
+            super.incGame(opponentScore);
+        } catch (NullPointerException e) {
+
+            String opponentPoints = opponentScore
+                    .getGame()
+                    .getPoint()
+                    .getCode();
+
+            if (point.getCode().equals("AD")){
+
+                if (opponentPoints.equals("AD")){
+                    point = point.getLower();
+                } else {
+                    super.incGame(opponentScore);
+                    point = Point.NULL;
+                    opponentScore.obnulit();
+
+                }
+            } else if (point.getCode().equals("40")){
+
+                if (opponentPoints.equals("40")){
+                    point = point.getNext();
+                } else if (!opponentPoints.equals("AD")){
+                    super.incGame(opponentScore);
+                    point = Point.NULL;
+                    opponentScore.obnulit();
+                } else {
+                    opponentScore.lowerPoint();
+                }
             } else {
-                super.incGame(opponentScore);
-                point = Point.NULL;
-                opponentScore.obnulit();
-
-            }
-        } else if (point.getCode().equals("40")){
-
-            if (opponentPoints.equals("40")){
                 point = point.getNext();
-            } else if (!opponentPoints.equals("AD")){
-                super.incGame(opponentScore);
-                point = Point.NULL;
-                opponentScore.obnulit();
-            } else {
-                opponentScore.lowerPoint();
             }
-            // 40 - AD - снизить
-        } else {
-            point = point.getNext();
+
         }
+
+
+
+
+
     }
 
     @Override

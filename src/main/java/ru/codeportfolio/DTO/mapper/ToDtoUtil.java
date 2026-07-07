@@ -101,21 +101,21 @@ public class ToDtoUtil {
                                                                 String player1Name, String player2Name,
                                                                 String winnerName){
 
-        Integer gamesPlayer1 = player1Score.tieBreak() != null ? null : player1Score.games();
-        Integer gamesPlayer2 = player2Score.tieBreak() != null ? null : player2Score.games();
+        String pointsPlayer1 = player1Score.tieBreak() != null ? null : player1Score.points();
+        String pointsPlayer2 = player2Score.tieBreak() != null ? null : player2Score.points();
 
         Integer tieBreakPlayer1 = player1Score.tieBreak() != null ? player1Score.tieBreak().getInt() : null;
         Integer tieBreakPlayer2 = player2Score.tieBreak() != null ? player2Score.tieBreak().getInt() : null;
 
         return new ScoreResponseDto(
                 new PlayerDto(player1Name,
-                        player1Score.points(),
-                        gamesPlayer1,
+                        pointsPlayer1,
+                        player1Score.games(),
                         player1Score.sets(),
                         tieBreakPlayer1),
                 new PlayerDto(player2Name,
-                        player2Score.points(),
-                        gamesPlayer2,
+                        pointsPlayer2,
+                        player2Score.games(),
                         player2Score.sets(),
                         tieBreakPlayer2),
                 winnerName

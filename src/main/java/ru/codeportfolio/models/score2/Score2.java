@@ -25,6 +25,8 @@ public abstract class Score2 {
 
     protected abstract Game2 getGame();
 
+    protected abstract int getGames();
+
     protected abstract Set2 getSet();
 
     protected void incSets(){
@@ -45,4 +47,6 @@ public abstract class Score2 {
 
 
     protected abstract void createTiebreak();
+
+    protected abstract void obnulitTieBreaks();
 }

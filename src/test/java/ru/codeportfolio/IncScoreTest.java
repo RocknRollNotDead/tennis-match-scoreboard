@@ -83,8 +83,6 @@ public class IncScoreTest {
 
         service.incPoint(uuid.toString(), PLAYER_1);
 
-        System.out.println(service.findMatch(uuid.toString()));
-
         int result = service.findMatch(uuid.toString()).firstPlayer().games();
         assertEquals(1, result);
     }
@@ -155,6 +153,57 @@ public class IncScoreTest {
         assertEquals(0, result);
 
     }
+
+    @Test
+    public void getTieBreakPoints(){
+
+        for (int i = 0; i < 5; i++) {
+            inc1Game(PLAYER_1);
+        }
+
+        for (int i = 0; i < 5; i++) {
+            inc1Game(PLAYER_2);
+        }
+
+        inc1Game(PLAYER_1);
+        inc1Game(PLAYER_2);
+
+        for (int i = 0; i < 4; i++) {
+            service.incPoint(uuid.toString(), PLAYER_1);
+        }
+
+
+        Integer result = service.findMatch(uuid.toString()).firstPlayer().tieBreakPoints();
+        assertEquals(4, result);
+
+    }
+
+
+    @Test
+    public void getSetsAfterTieBreak(){
+
+        for (int i = 0; i < 5; i++) {
+            inc1Game(PLAYER_1);
+        }
+
+        for (int i = 0; i < 5; i++) {
+            inc1Game(PLAYER_2);
+        }
+
+        inc1Game(PLAYER_1);
+        inc1Game(PLAYER_2);
+
+        for (int i = 0; i < 7; i++) {
+            service.incPoint(uuid.toString(), PLAYER_1);
+        }
+
+
+        Integer result = service.findMatch(uuid.toString()).firstPlayer().sets();
+        assertEquals(1, result);
+
+    }
+
+
 
     @Test
     public void checkSave(){
