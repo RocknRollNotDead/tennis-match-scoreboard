@@ -1,4 +1,4 @@
-package ru.codeportfolio.models.score;
+package ru.codeportfolio.models;
 
 import ru.codeportfolio.DTO.ScoreResponseDto;
 import ru.codeportfolio.DTO.mapper.ToDtoUtil;

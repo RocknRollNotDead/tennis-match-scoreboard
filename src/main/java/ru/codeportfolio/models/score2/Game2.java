@@ -1,6 +1,5 @@
 package ru.codeportfolio.models.score2;
 
-import ru.codeportfolio.models.score.Game;
 import ru.codeportfolio.models.score.Point;
 
 public class Game2 extends Set2 {
@@ -15,15 +14,11 @@ public class Game2 extends Set2 {
     @Override
     public void incPoint(Score2 opponentScore){
 
-        // tieBreak
-
-
-
-        try {
+        if (hasTieBreak()){
 
             getTieBreakPoints();
             super.incGame(opponentScore);
-        } catch (NullPointerException e) {
+        } else {
 
             String opponentPoints = opponentScore
                     .getGame()
@@ -32,14 +27,10 @@ public class Game2 extends Set2 {
 
             if (point.getCode().equals("AD")){
 
-                if (opponentPoints.equals("AD")){
-                    point = point.getLower();
-                } else {
-                    super.incGame(opponentScore);
-                    point = Point.NULL;
-                    opponentScore.obnulit();
+                super.incGame(opponentScore);
+                point = Point.NULL;
+                opponentScore.reset();
 
-                }
             } else if (point.getCode().equals("40")){
 
                 if (opponentPoints.equals("40")){
@@ -47,7 +38,7 @@ public class Game2 extends Set2 {
                 } else if (!opponentPoints.equals("AD")){
                     super.incGame(opponentScore);
                     point = Point.NULL;
-                    opponentScore.obnulit();
+                    opponentScore.reset();
                 } else {
                     opponentScore.lowerPoint();
                 }
@@ -56,10 +47,6 @@ public class Game2 extends Set2 {
             }
 
         }
-
-
-
-
 
     }
 
@@ -72,7 +59,7 @@ public class Game2 extends Set2 {
         return point;
     }
 
-    protected void obnulit(){
+    protected void reset(){
         point = Point.NULL;
     }
 

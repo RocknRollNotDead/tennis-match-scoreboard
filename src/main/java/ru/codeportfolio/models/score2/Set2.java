@@ -1,10 +1,8 @@
 package ru.codeportfolio.models.score2;
 
 public abstract class Set2 extends Score2 {
-    // 6-0
+
     private int games;
-
-
     private TieBreak2 tieBreak = null;
 
     public Set2() {
@@ -21,20 +19,15 @@ public abstract class Set2 extends Score2 {
                 games++;
             } else if (opponentScore.getSet().getGames() == 6) {
 
-                if (tieBreak == null) {
 
-                    opponentScore.createTiebreak();
-                    createTiebreak();
-                    tieBreak = new TieBreak2();
+                opponentScore.createTiebreak();
+                createTiebreak();
 
-
-                }
                 games++;
 
-//                incTieBreakPoint(opponentScore);
             } else {
                 super.incSets();
-                opponentScore.obnulitGames();
+                opponentScore.clearGames();
                 games = 0;
             }
         } else if (games == 6) {
@@ -45,7 +38,7 @@ public abstract class Set2 extends Score2 {
             } else {
 
                 super.incSets();
-                opponentScore.obnulitGames();
+                opponentScore.clearGames();
                 games = 0;
             }
         }
@@ -54,14 +47,18 @@ public abstract class Set2 extends Score2 {
     private void incTieBreakPoint(Score2 opponentScore) {
         tieBreak.inc();
 
-        if (((tieBreak.getInt() - opponentScore.getTieBreakPoints()) >= 2) && tieBreak.getInt() >= 7) {
-            opponentScore.obnulitGames();
+        if (hasDifferenceInTieBreak(opponentScore) && tieBreak.getInt() >= 7) {
+            opponentScore.clearGames();
             games = 0;
             tieBreak = null;
-            opponentScore.obnulitTieBreaks();
+            opponentScore.clearTieBreaks();
             super.incSets();
 
         }
+    }
+
+    protected TieBreak2 getTieBreak() {
+        return tieBreak;
     }
 
     @Override
@@ -69,23 +66,33 @@ public abstract class Set2 extends Score2 {
         return this;
     }
 
-    protected void obnulitTieBreaks() {
-        tieBreak = null;
-    }
-
-    protected TieBreak2 getTieBreak() {
-        return tieBreak;
-    }
-
+    @Override
     protected int getGames() {
         return games;
     }
 
-    protected void obnulitGames() {
+
+    @Override
+    protected void clearTieBreaks() {
+        tieBreak = null;
+    }
+
+    @Override
+    protected void createTiebreak() {
+        tieBreak = new TieBreak2();
+    }
+
+    @Override
+    protected boolean hasTieBreak() {
+        return tieBreak != null;
+    }
+
+    @Override
+    protected void clearGames() {
         games = 0;
     }
 
-    protected void createTiebreak() {
-        tieBreak = new TieBreak2();
+    private boolean hasDifferenceInTieBreak(Score2 opponentScore) {
+        return (tieBreak.getInt() - opponentScore.getTieBreakPoints()) >= 2;
     }
 }

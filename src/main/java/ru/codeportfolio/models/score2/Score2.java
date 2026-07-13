@@ -1,14 +1,8 @@
 package ru.codeportfolio.models.score2;
 
-import ru.codeportfolio.DTO.PlayerDto;
-
 public abstract class Score2 {
 
     private int sets = 0;
-
-    public Score2() {
-
-    }
 
     public boolean isWin(){
         return sets >= 2;
@@ -23,11 +17,7 @@ public abstract class Score2 {
                 isWin());
     }
 
-    protected abstract Game2 getGame();
-
-    protected abstract int getGames();
-
-    protected abstract Set2 getSet();
+    public abstract void incPoint(Score2 opponentScore);
 
     protected void incSets(){
         sets++;
@@ -37,16 +27,21 @@ public abstract class Score2 {
         return getSet().getTieBreak().getInt();
     }
 
-    public abstract void incPoint(Score2 opponentScore);
+    protected abstract Game2 getGame();
 
-    protected abstract void obnulit();
+    protected abstract int getGames();
 
-    protected abstract void obnulitGames();
+    protected abstract Set2 getSet();
+
+    protected abstract void reset();
+
+    protected abstract void clearGames();
 
     protected abstract void lowerPoint();
 
-
     protected abstract void createTiebreak();
 
-    protected abstract void obnulitTieBreaks();
+    protected abstract void clearTieBreaks();
+
+    protected abstract boolean hasTieBreak();
 }

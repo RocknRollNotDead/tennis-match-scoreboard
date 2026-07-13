@@ -12,9 +12,7 @@ import ru.codeportfolio.exceptions.NotFoundException;
 import ru.codeportfolio.exceptions.ValidationException;
 import ru.codeportfolio.models.entities.Match;
 import ru.codeportfolio.models.entities.Player;
-import ru.codeportfolio.models.score.Score;
-import ru.codeportfolio.models.score.TennisMatch;
-import ru.codeportfolio.models.score2.Score2;
+import ru.codeportfolio.models.TennisMatch;
 import ru.codeportfolio.validators.PlayerValidateUtil;
 
 import java.util.*;

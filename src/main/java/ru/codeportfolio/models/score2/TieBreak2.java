@@ -9,7 +9,6 @@ public class TieBreak2 {
 
     public void inc() {
         score++;
-//        return score >= 7;
     }
 
     public int getInt(){
