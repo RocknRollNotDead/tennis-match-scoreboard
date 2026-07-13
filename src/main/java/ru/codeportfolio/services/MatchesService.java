@@ -14,6 +14,9 @@ import ru.codeportfolio.models.entities.Match;
 import ru.codeportfolio.models.entities.Player;
 import ru.codeportfolio.models.TennisMatch;
 import ru.codeportfolio.validators.PlayerValidateUtil;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import java.util.concurrent.TimeUnit;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -24,7 +27,11 @@ public class MatchesService {
     private final PlayersDao playersDao;
     private static final int SIZE_PAGE = 5;
 
-    private final Map<UUID, TennisMatch> scores = new ConcurrentHashMap<>();
+    private final Cache<UUID, TennisMatch> scores = Caffeine.newBuilder()
+            .expireAfterAccess(30, TimeUnit.MINUTES)
+            .maximumSize(1000)
+            .build();
+
 
     public MatchesService(MatchesDao matchesDao, PlayersDao playersDao) {
         this.matchesDao = matchesDao;
@@ -53,7 +60,7 @@ public class MatchesService {
             throw new ValidationException("Uncorrected uuid in request", e);
         }
 
-        TennisMatch score = scores.get(id);
+        TennisMatch score = scores.getIfPresent(id);
         if (score == null) {
             throw new NotFoundException("Not found match!");
         }
@@ -66,7 +73,7 @@ public class MatchesService {
             score.incPoint(playerName);
             if (score.getWinner() != null) {
                 saveMatch(score);
-                scores.remove(id);
+                scores.invalidate(id);
             }
         }
 
@@ -83,7 +90,7 @@ public class MatchesService {
         }
         TennisMatch score;
         try {
-            score = scores.get(id);
+            score = scores.getIfPresent(id);
         } catch (NoSuchElementException e) {
             throw new NotFoundException("not find score " + uuid);
         } catch (RuntimeException e) {
