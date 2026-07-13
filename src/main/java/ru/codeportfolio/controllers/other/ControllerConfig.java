@@ -19,5 +19,4 @@ public class ControllerConfig implements WebMvcConfigurer {
     public void addViewControllers(ViewControllerRegistry registry) {
         registry.addRedirectViewController("/", "/index.html");
     }
-
 }

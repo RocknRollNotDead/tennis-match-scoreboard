@@ -9,7 +9,7 @@ import java.util.Objects;
 @Table (name = "matches",
         check = {
         @CheckConstraint(
-                        name = "notnull",
+                        name = "player_cant_be_null",
                         constraint = "winner = player_1 OR winner = player_2 OR winner IS NULL"),
         @CheckConstraint(
                         name = "player1_not_player2",
@@ -42,11 +42,6 @@ public class Match {
                 this.winner = winner;
         }
 
-        /*public Match(Player homePlayer, Player guestPlayer) {
-                this.homePlayer = homePlayer;
-                this.guestPlayer = guestPlayer;
-        }
-*/
         public long getId() {
                 return id;
         }

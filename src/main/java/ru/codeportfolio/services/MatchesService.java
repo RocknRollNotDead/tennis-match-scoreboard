@@ -89,12 +89,10 @@ public class MatchesService {
             throw new ValidationException("Uncorrected uuid in request", e);
         }
         TennisMatch score;
-        try {
-            score = scores.getIfPresent(id);
-        } catch (NoSuchElementException e) {
+
+        score = scores.getIfPresent(id);
+        if (score == null){
             throw new NotFoundException("not find score " + uuid);
-        } catch (RuntimeException e) {
-            throw e;
         }
 
         return score.getScore();
