@@ -6,12 +6,7 @@ RUN mvn dependency:go-offline
 COPY src ./src
 RUN mvn clean package -DskipTests
 
-#FROM eclipse-temurin:21-jre
-#WORKDIR /project
-#COPY --from=build /project/target/*.war app.war
-#ENTRYPOINT ["java", "-jar", "app.war"]
-
 FROM tomcat:10-jdk21
-COPY --from=build /project/target/*.war /usr/local/tomcat/webapps/ROOT.war
+COPY --from=build /project/target/*.war /usr/local/tomcat/webapps/tennis-match-scoreboard.war
 EXPOSE 8080
 CMD ["catalina.sh", "run"]
