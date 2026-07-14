@@ -8,6 +8,8 @@
 [ТЗ проекта](https://zhukovsd.github.io/java-backend-learning-course/projects/tennis-scoreboard/).
 
 Задеплоен на http://193.168.46.216:80/tennis-match-scoreboard
+Также подключен к домену:
+https://codeportfolio.ru/tennis-match-scoreboard 
 
 ## Стек и структура
 
