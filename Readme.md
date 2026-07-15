@@ -1,12 +1,10 @@
-## Важное изменение
-### Деплой переехал на 80 порт!
 
 # Табло теннисного матча (Tennis scoreboard tablo)
 
 Третий учебный проект из [роадмапа Сергея Жукова](https://zhukovsd.github.io/java-backend-learning-course/).
 [ТЗ проекта](https://zhukovsd.github.io/java-backend-learning-course/projects/tennis-scoreboard/).
 
-Задеплоен на http://193.168.46.216:80/tennis-match-scoreboard и https://codeportfolio.ru/tennis-match-scoreboard
+Задеплоен на http://193.168.46.216:8080/tennis-match-scoreboard и https://codeportfolio.ru/tennis-match-scoreboard
 
 ## Стек и структура
 
@@ -214,7 +212,7 @@ docker exec -it myapp bash
 ls -la /usr/local/tomcat/logs
 ```
 
-**2.7 миграция таблиц из бд**
+### 3. миграция таблиц из бд
 
 Создание слепка
 ```bash
@@ -227,6 +225,35 @@ sudo -u postgres pg_dump --clean --if-exists tennis_scoreboard > /root/tennis_sc
 cat /root/tennis_scoreboard_backup.sql | docker exec -i tennis_scoreboard psql -U postgres -d tennis_scoreboard
 ```
 
+
+### 4. Перенос на домен
+
+Добавил настройку Caddy в docker-compose
+
+```yaml
+  caddy:
+    image: caddy:latest
+    container_name: caddy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - app
+```
+
+docker сам скачает caddy в созданный им контейнер, а caddy сам получит SSL сертификат по записям в Caddyfile
+
+```Caddyfile
+codeportfolio.ru {
+    reverse_proxy app:8080
+}
+```
+
+И после этого всё приложение доступно и по http://193.168.46.216:8080/tennis-match-scoreboard (как по тз) и https://codeportfolio.ru/tennis-match-scoreboard (https с SSL сертификатом)
 
 
 ## О том, чему я научился
