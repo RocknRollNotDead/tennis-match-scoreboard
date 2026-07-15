@@ -4,7 +4,7 @@ WORKDIR /project
 COPY pom.xml .
 RUN mvn dependency:go-offline
 COPY src ./src
-RUN mvn clean package -DskipTests
+RUN mvn clean package -Dmaven.test.skip=true
 
 FROM tomcat:10-jdk21
 COPY --from=build /project/target/*.war /usr/local/tomcat/webapps/tennis-match-scoreboard.war

@@ -2,7 +2,7 @@ package ru.codeportfolio.validators;
 
 import ru.codeportfolio.exceptions.ValidationException;
 
-public class PlayerValidateUtil {
+public final class PlayerValidateUtil {
     private PlayerValidateUtil(){}
 
     public static String normalizeRequest(String playerName) {

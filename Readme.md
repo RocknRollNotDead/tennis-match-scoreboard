@@ -1,9 +1,12 @@
+## Важное изменение
+### Деплой переехал на 80 порт!
+
 # Табло теннисного матча (Tennis scoreboard tablo)
 
 Третий учебный проект из [роадмапа Сергея Жукова](https://zhukovsd.github.io/java-backend-learning-course/).
 [ТЗ проекта](https://zhukovsd.github.io/java-backend-learning-course/projects/tennis-scoreboard/).
 
-Задеплоен на http://193.168.46.216:8080/tennis-match-scoreboard
+Задеплоен на http://193.168.46.216:80/tennis-match-scoreboard и https://codeportfolio.ru/tennis-match-scoreboard
 
 ## Стек и структура
 
@@ -143,6 +146,88 @@ su -s /bin/bash tomcat -c /opt/tomcat/bin/startup.sh
 ```
 http://000.000.000.000:8080/tennis-match-scoreboard/
 ```
+
+## Запуск через Docker
+
+Есть другой вариант запуска - через Docker и Docker compose. С помощью этого легче запускать сразу несколько проектов.
+
+Шаг **1**. и шаг **2.1** повторяем из предыдущей реализации.
+
+**2.2 установка Docker и docker-compose**
+
+```bash
+sudo apt install -y docker.io docker-compose-v2
+```
+или
+```bash
+sudo snap install docker
+```
+
+**2.3 сброка Dockerfile и docker-compose.yml**
+
+```yaml
+services:
+  db:
+    ...
+  app:
+    ...
+volumes:
+```
+
+**2.4 отправка проекта на сервер**
+
+```bash
+scp -r C:\Users\myuser\путь\tennis-match-scoreboard root@000.000.0.000:~/
+```
+отправляет в директорию пользователь/tennis-match-scoreboard на удалённом сервере
+
+**2.5 запуск docker-compose**
+
+```bash
+docker compose up -d
+```
+
+**2.6 исправление багов**
+
+```bash
+nano ~/tennis-match-scoreboard/Dockerfile
+nano ~/tennis-match-scoreboard/src/main/webapp/js/app.js
+```
+либо исправить на своём компьютере и в cmd
+
+```bash
+scp -r C:\Users\myuser\путь\tennis-match-scoreboard\src\main\webapp\js\app.js root@000.000.0.000:~/tennis-match-scoreboard/src/main/webapp/js/app.js
+```
+
+и потом на удалённом сервере 
+
+```bash
+docker compose down
+DOCKER_BUILDKIT=0 docker compose up --build -d
+```
+Флаг с buildkit снят из-за того, что с флагом docker пытается параллельно загрузить все зависимости, и сервер этого не вывозит и не даёт нормально скачать.
+
+и потом посмотреть логи
+
+```bash
+docker exec -it myapp bash
+ls -la /usr/local/tomcat/logs
+```
+
+**2.7 миграция таблиц из бд**
+
+Создание слепка
+```bash
+sudo -u postgres pg_dump --clean --if-exists tennis_scoreboard > /root/tennis_scoreboard_backup.sql
+```
+(потом он удалит все данные из новой таблицы, чтобы сохранить старые)
+
+Перенос слепка в контейнер бд
+```bash
+cat /root/tennis_scoreboard_backup.sql | docker exec -i tennis_scoreboard psql -U postgres -d tennis_scoreboard
+```
+
+
 
 ## О том, чему я научился
 
