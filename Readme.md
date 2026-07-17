@@ -1,7 +1,7 @@
 
 # Табло теннисного матча (Tennis scoreboard tablo)
 
-Третий учебный проект из [роадмапа Сергея Жукова](https://zhukovsd.github.io/java-backend-learning-course/).
+Четвёртый учебный проект из [роадмапа Сергея Жукова](https://zhukovsd.github.io/java-backend-learning-course/).
 [ТЗ проекта](https://zhukovsd.github.io/java-backend-learning-course/projects/tennis-scoreboard/).
 
 Задеплоен на http://193.168.46.216:8080/tennis-match-scoreboard и https://codeportfolio.ru/tennis-match-scoreboard
